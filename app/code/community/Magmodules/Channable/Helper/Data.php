@@ -12,7 +12,7 @@
  * @author      Magmodules <info@magmodules.eu>
  * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
  * @license     http://www.magmodules.eu/license-agreement/  
- * @version		07-06-2016
+ * @version		16-09-2016
  * =============================================================
  */
  
@@ -184,26 +184,32 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 	
 	public function getProductUrl($product, $config, $parent) 
 	{
+		$url = '';
 		if(!empty($parent)) {
-			if($parent->getUrlKey()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getUrlKey() . $config['product_url_suffix']));
-			}
+			if($parent->getRequestPath()) {
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getRequestPath()));			
+			}			
 			if(empty($url)) {
-				if($product->getRequestPath()) {
-					$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getRequestPath() . $config['product_url_suffix']));			
-				}			
+				if($parent->getUrlKey()) {
+					$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getUrlKey()));
+				}
 			}
 		} else {
-			if($product->getUrlKey()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getUrlKey() . $config['product_url_suffix']));
-			}
+			if($product->getRequestPath()) {
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getRequestPath()));			
+			}			
 			if(empty($url)) {
-				if($product->getRequestPath()) {
-					$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getRequestPath() . $config['product_url_suffix']));			
-				}			
+				if($product->getUrlKey()) {
+					$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getUrlKey()));
+				}
 			}
 		}
-		if(!empty($parent) && !empty($config['conf_switch_urls'])) {
+		if(!empty($config['product_url_suffix'])) {
+			if(strpos($url, $config['product_url_suffix']) === false) {
+				$url = $url . $config['product_url_suffix'];
+			}
+		}
+		if(!empty($parent) && !empty($config['conf_switch_urls']) && !empty($url)) {
 			if($parent->getTypeId() == 'configurable') {
 				$productAttributeOptions = $parent->getTypeInstance(true)->getConfigurableAttributesAsArray($parent);
 				$url_extra = '';
@@ -530,8 +536,20 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 		if(!empty($config['category_replace'])) {
 			$attributes[] = $config['category_replace'];
 		}
-		
-		$categories = Mage::getModel('catalog/category')->setStoreId($storeId)->getCollection()->addAttributeToSelect($attributes)->addFieldToFilter('is_active', array('eq' => 1));
+
+		if(!empty($config['filter_enabled'])) {			
+			$type = $config['filter_type'];
+			$f_categories = explode(',', $config['filter_cat']);
+			if($type && $f_categories) {
+				if($type == 'include') {
+					$categories = Mage::getModel('catalog/category')->setStoreId($storeId)->getCollection()->addAttributeToSelect($attributes)->addFieldToFilter('is_active', array('eq' => 1))->addAttributeToFilter('entity_id', array('in' => $f_categories));
+				} else {
+					$categories = Mage::getModel('catalog/category')->setStoreId($storeId)->getCollection()->addAttributeToSelect($attributes)->addFieldToFilter('is_active', array('eq' => 1))->addAttributeToFilter('entity_id', array('nin' => $f_categories));
+				}
+			}
+		} else {			
+			$categories = Mage::getModel('catalog/category')->setStoreId($storeId)->getCollection()->addAttributeToSelect($attributes)->addFieldToFilter('is_active', array('eq' => 1));
+		}
 		$_categories = array();
 
 		foreach($categories as $cat) {
@@ -675,6 +693,11 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 	{
 		$type_prices = array();
 		if(!empty($config['conf_enabled'])) {
+			if(!empty($config['hide_currency'])) {
+				$currency = '';
+			} else {
+				$currency = ' ' . $config['currency'];
+			}			
 			foreach($products as $product) {
 				if($product->getTypeId() == 'configurable') {
 					$attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
@@ -684,9 +707,9 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 						$prices = $attribute->getPrices();
 						foreach ($prices as $price){
 							if ($price['is_percent']) { 
-								$att_prices[$price['value_index']] = (float)$price['pricing_value'] * $base_price / 100;
+								$att_prices[$price['value_index']] = (float)(($price['pricing_value'] * $base_price / 100) * $config['markup']);
 							} else {
-								$att_prices[$price['value_index']] = (float)$price['pricing_value'];
+								$att_prices[$price['value_index']] = (float)($price['pricing_value'] * $config['markup']);
 							}
 						}
 					}
@@ -700,14 +723,13 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 								$total_price += $att_prices[$value];
 							}
 						}
-						$type_prices[$sProduct->getEntityId()] = number_format($total_price, 2, '.', '') . ' ' . $config['currency'];
+						$type_prices[$sProduct->getEntityId()] = number_format(($total_price * $config['markup']), 2, '.', '') . $currency;
 					}
 				}
 			}
 		}
 		return $type_prices;
 	}
-
 
 	public function checkOldVersion($dir) 
 	{

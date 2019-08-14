@@ -27,11 +27,11 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 		$collection->addUrlRewrite();
 
 		if(!empty($config['filter_enabled'])) {			
-			$type = $config['filter_type'];
+			$f_type = $config['filter_type'];
 			$categories = $config['filter_cat'];
-			if($type && $categories) {
+			if($f_type && $categories) {
 				$table = Mage::getSingleton('core/resource')->getTableName('catalog_category_product');
-				if($type == 'include') {
+				if($f_type == 'include') {
 					$collection->getSelect()->join(array('cats' => $table), 'cats.product_id = e.entity_id');
 					$collection->getSelect()->where('cats.category_id in (' . $categories . ')');			
 				} else {
@@ -50,7 +50,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 		if(empty($config['conf_enabled'])) {
 			$collection->addAttributeToFilter('visibility', array('in' => array(2,3,4)));        					
 		}
-
+		
 		if($type != 'count') {
 
 			// All attributes
@@ -156,7 +156,9 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 				Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
 			}
 			$products = $collection->load();			
+
 		} else {
+			
 			if(!empty($config['filters'])) {
 				foreach($config['filters'] as $filter) {
 					$attribute = $filter['attribute'];
@@ -192,6 +194,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 			if(!empty($config['hide_no_stock'])) {
 				Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);    					
 			}
+
 			$products = $collection->getSize();
 		}	
         return $products;

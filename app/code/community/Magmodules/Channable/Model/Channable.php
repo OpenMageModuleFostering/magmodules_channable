@@ -107,7 +107,7 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		$config['delivery_out_be'] 		= Mage::getStoreConfig('channable/data/delivery_out_be', $storeId);	
 		$config['images'] 				= Mage::getStoreConfig('channable/data/images', $storeId);
 		$config['default_image'] 		= Mage::getStoreConfig('channable/data/default_image', $storeId);
-		$config['skip_validation'] 		= true;
+		$config['skip_validation'] 		= false;
 
 		// WEIGHT
 		$config['weight']				= Mage::getStoreConfig('channable/data/weight', $storeId);
