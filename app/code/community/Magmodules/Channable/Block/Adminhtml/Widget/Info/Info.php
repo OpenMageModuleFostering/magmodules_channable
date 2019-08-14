@@ -30,19 +30,19 @@ class Magmodules_Channable_Block_Adminhtml_Widget_Info_Info extends Mage_Adminht
                     <br />
                   	<table width="500px" border="0">
 						<tr>
-							<td width="58%">View more extensions from us:</td>
+							<td width="58%">More Extensions from Magmodules:</td>
 							<td width="42%"><a href="http://www.magentocommerce.com/magento-connect/developer/Magmodules" target="_blank">Magento Connect</a></td>
 						</tr>
 						<tr>
-							<td height="30">Visit our website:</td>
+							<td>For Help:</td>
+							<td><a href="https://www.magmodules.eu/support.html?ext=channable-connect">Visit our Support Page</a></td>
+						</tr>
+						<tr>
+							<td height="30">Visit Our Website:</td>
 							<td><a href="http://www.magmodules.eu" target="_blank">www.magmodules.eu</a></td>
 						</tr>
 						<tr>
-							<td>&nbsp;</td>
-							<td>&nbsp;</td>
-						</tr>
-						<tr>
-							<td height="30"><strong>Read everything about the extension configuration in our <a href="http://www.magmodules.eu/help/channable-connect" target="_blank">Knowledgebase</a></strong>.</td>
+							<td height="30"><strong>Read everything about the extension configuration in our <a href="http://www.magmodules.eu/help/channable-connect#" target="_blank">Knowledgebase</a></strong>.</td>
 							<td>&nbsp;</td>
 						</tr>
 					</table>

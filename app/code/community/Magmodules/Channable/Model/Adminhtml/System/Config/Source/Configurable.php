@@ -20,7 +20,7 @@ class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Configurable {
 	public function toOptionArray() 
 	{	
 		$attributes = Mage::getModel("channable/channable")->getFeedAttributes();
-		$attributes_skip = array('id','parent_id','price');
+		$attributes_skip = array('id','parent_id','price','stock','stock_status','visibility','status','type');
 		$att = array();		
 		foreach ($attributes as $key => $attribute) {
 			if(!in_array($key,$attributes_skip)) {

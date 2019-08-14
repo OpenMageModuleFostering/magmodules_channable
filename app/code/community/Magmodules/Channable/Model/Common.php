@@ -53,26 +53,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 		
 		if($type != 'count') {
 
-			// All attributes
-			$attributes = array(); 
-	        $attributes[] = 'url_key';        
-			$attributes[] = 'sku';
-			$attributes[] = 'price';
-			$attributes[] = 'final_price';
-			$attributes[] = 'price_model';
-			$attributes[] = 'price_type';
-			$attributes[] = 'special_price';
-			$attributes[] = 'special_from_date';
-			$attributes[] = 'special_to_date';        
-			$attributes[] = 'type_id';                
-			$attributes[] = 'tax_class_id';
-			$attributes[] = 'tax_percent';
-			$attributes[] = 'weight';
-			$attributes[] = 'visibility';
-			$attributes[] = 'type_id';
-			$attributes[] = 'image';
-			$attributes[] = 'small_image';
-			$attributes[] = 'thumbnail';          
+			$attributes = $this->getDefaultAttributes();
 
 			if(!empty($config['filter_exclude'])) {
 				$attributes[] = $config['filter_exclude'];
@@ -158,6 +139,8 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 			$products = $collection->load();			
 
 		} else {
+
+			$collection->addAttributeToFilter('type_id', array('neq' => 'configurable'));
 			
 			if(!empty($config['filters'])) {
 				foreach($config['filters'] as $filter) {
@@ -199,5 +182,50 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 		}	
         return $products;
     }	
-    
+
+    public function loadParentProduct($parentId, $storeId, $attributes) 
+    {
+        $parent = Mage::getResourceModel('catalog/product_collection')
+			->setStore($storeId)
+			->addStoreFilter($storeId)		
+			->addFinalPrice()
+			->addUrlRewrite()
+		    ->addAttributeToFilter('entity_id', $parentId)
+			->addAttributeToSelect(array_unique($attributes))   	
+		    ->getFirstItem();
+		return $parent;    
+    }  
+
+	public function getDefaultAttributes()
+	{
+		$attributes = array(); 
+		$attributes[] = 'url_key';        
+		$attributes[] = 'url_path';
+		$attributes[] = 'sku';
+		$attributes[] = 'price';
+		$attributes[] = 'final_price';
+		$attributes[] = 'price_model';
+		$attributes[] = 'price_type';
+		$attributes[] = 'special_price';
+		$attributes[] = 'special_from_date';
+		$attributes[] = 'special_to_date';        
+		$attributes[] = 'type_id';                
+		$attributes[] = 'tax_class_id';
+		$attributes[] = 'tax_percent';
+		$attributes[] = 'weight';
+		$attributes[] = 'visibility';
+		$attributes[] = 'type_id';
+		$attributes[] = 'image';
+		$attributes[] = 'small_image';
+		$attributes[] = 'thumbnail';          
+		$attributes[] = 'status';          
+		return $attributes;
+	}
+
+    public function getParentAttributeSelection($atts) 
+    {
+		$attributes = $this->getDefaultAttributes();
+		$extraAttributes = explode(',', $atts);
+		return array_merge($attributes, $extraAttributes);
+	}
 }

@@ -33,9 +33,11 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 	{		
 		$count = $this->getProducts($config, '', '', 'count');
 		foreach($products as $product) {
-			$parent_id = Mage::helper('channable')->getParentData($product, $config);
-			if($parent_id > 0) { $parent = $products->getItemById($parent_id); } else { $parent = ''; }
-			if(($parent_id > 0) && (empty($parent))) { $parent = Mage::getModel('catalog/product')->setStoreId($config['store_id'])->load($parent_id); } 
+			if($parent_id = Mage::helper('channable')->getParentData($product, $config)) {
+				$parent = $this->loadParentProduct($parent_id, $config['store_id'], $config['parent_att']); 
+			} else {
+				$parent = '';
+			}
 			if($product_data = Mage::helper('channable')->getProductDataRow($product, $config, $parent)) {
 				foreach($product_data as $key => $value) {
 					if(!is_array($value)) { $product_row[$key] = $value; }	
@@ -91,6 +93,8 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		$config['hide_no_stock']		= Mage::getStoreConfig('channable/filter/stock', $storeId);
 		$config['conf_enabled']			= Mage::getStoreConfig('channable/data/conf_enabled', $storeId);	
 		$config['conf_fields']			= Mage::getStoreConfig('channable/data/conf_fields', $storeId);	
+		$config['parent_att']			= $this->getParentAttributeSelection($config['conf_fields']);	
+
 		$config['conf_switch_urls']		= Mage::getStoreConfig('channable/data/conf_switch_urls', $storeId);	
 		$config['stock_manage']			= Mage::getStoreConfig('cataloginventory/item_options/manage_stock');
 		$config['use_qty_increments']	= Mage::getStoreConfig('cataloginventory/item_options/enable_qty_increments');
@@ -179,11 +183,19 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		return Mage::helper('channable')->addAttributeData($attributes, $config);	
 	}
 	
-	protected function getPrices($data, $conf_prices, $id) 
+	protected function getPrices($data, $conf_prices, $product, $currency) 
 	{			
 		$prices = array();
+		$id = $product->getEntityId();
 		if(!empty($conf_prices[$id])) {
-			$prices['price'] = $conf_prices[$id];	
+			$conf_price = Mage::helper('tax')->getPrice($product, $conf_prices[$id], true);
+			$conf_price_reg = Mage::helper('tax')->getPrice($product, $conf_prices[$id . '_reg'], true);
+			if($conf_price_reg > $conf_price) {
+				$prices['special_price'] = number_format($conf_price, 2, '.', '') . ' ' . $currency;
+				$prices['price'] = number_format($conf_price_reg, 2, '.', '') . ' ' . $currency;
+			} else {
+				$prices['price'] = number_format($conf_price, 2, '.', '') . ' ' . $currency;			
+			}
 		} else {
 			$prices['price'] = $data['price'];
 			$prices['special_price'] = '';
@@ -351,7 +363,7 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 	{
 		$_extra = array();
 		if(!empty($product_data['price'])) {
-			if($_prices = $this->getPrices($product_data['price'], $prices, $product->getEntityId())) {
+			if($_prices = $this->getPrices($product_data['price'], $prices, $product, $config['currency'])) {
 				$_extra = array_merge($_extra, $_prices);
 			}	
 		}
@@ -419,5 +431,4 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 			}		
 		}	
 	}	
-	
 }

@@ -24,6 +24,7 @@ class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Attribute {
 		$optionArray[] = array('label' => Mage::helper('channable')->__('- Product ID'), 'value' => 'entity_id');
 		$optionArray[] = array('label' => Mage::helper('channable')->__('- Final Price'), 'value' => 'final_price');
 		$optionArray[] = array('label' => Mage::helper('channable')->__('- Product Type'), 'value' => 'type_id');
+		$optionArray[] = array('label' => Mage::helper('channable')->__('- Attribute Set'), 'value' => 'attribute_set_id');
 		$backend_types = array('text', 'select', 'textarea', 'date', 'int', 'boolean', 'static', 'varchar', 'decimal');
         $attributes = Mage::getResourceModel('catalog/product_attribute_collection')->setOrder('frontend_label','ASC')->addFieldToFilter('backend_type', $backend_types);
         foreach($attributes as $attribute) {

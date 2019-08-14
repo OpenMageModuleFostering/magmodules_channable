@@ -81,7 +81,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 				$value = $this->getProductWeight($product_data, $config);
 				break;
 			case 'price':
-				$value = $this->getProductPrice($product_data, $config);
+				$value = $this->getProductPrice($product_data, $config, $parent);
 				break;
 			case 'bundle':
 				$value = $this->getProductBundle($product_data, $config);
@@ -89,6 +89,9 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 			case 'parent_id':
 				$value = $this->getProductData($parent, $data);
 				break;
+			case 'attribute_set_id':
+				$value = $this->getAttributeSetName($product_data, $data);
+				break;				
 			case 'categories':
 				$value = $this->getProductCategories($product_data, $config);
 				break;
@@ -351,6 +354,11 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 		}
 	}
 
+	public function getAttributeSetName($product, $data) 
+	{
+		return Mage::getModel('eav/entity_attribute_set')->load($product->getAttributeSetId())->getAttributeSetName();	
+	}
+
 	public function getProductCategories($product, $config) 
 	{
 		if(isset($config['category_data'])) {
@@ -420,7 +428,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 		return $value;
 	}
 	
-	public function getProductPrice($product, $config) 
+	public function getProductPrice($product, $config, $parent) 
 	{
 		$price_data = array();
 		$price_markup = $this->getPriceMarkup($config);
@@ -455,7 +463,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 				}
 			}			
 		}
-
+	
 		if(($product->getTypeId() == 'bundle') && ($price < 0.01)) {
 			$price = $this->getPriceBundle($product, $config['store_id']);
 		}		
@@ -477,10 +485,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 			$price_data['sales_price'] = number_format(($sales_price * $price_markup), 2, '.', '') . $currency;
 		}
 		
-		if($price_data['final_price_clean'] > 0.01) {	
-			return $price_data;
-		}
-		
+		return $price_data;
 	}
 	
 	public function getPriceMarkup($config) 
@@ -708,13 +713,16 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 					$attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
 					$att_prices = array();
 					$base_price = $product->getFinalPrice();
+					$base_price_reg = $product->getPrice();
 					foreach ($attributes as $attribute){
 						$prices = $attribute->getPrices();
 						foreach ($prices as $price){
 							if ($price['is_percent']) { 
 								$att_prices[$price['value_index']] = (float)(($price['pricing_value'] * $base_price / 100) * $config['markup']);
+								$att_prices[$price['value_index'] . '_reg'] = (float)(($price['pricing_value'] * $base_price_reg / 100) * $config['markup']);
 							} else {
 								$att_prices[$price['value_index']] = (float)($price['pricing_value'] * $config['markup']);
+								$att_prices[$price['value_index'] . '_reg'] = (float)($price['pricing_value'] * $config['markup']);
 							}
 						}
 					}
@@ -722,13 +730,16 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 					$simple_prices = array();	
 					foreach($simple as $sProduct) {
 						$total_price = $base_price;
+						$total_price_reg = $base_price_reg;
 						foreach($attributes as $attribute) {
 							$value = $sProduct->getData($attribute->getProductAttribute()->getAttributeCode());
 							if(isset($att_prices[$value])) {
 								$total_price += $att_prices[$value];
+								$total_price_reg += $att_prices[$value . '_reg'];
 							}
 						}
-						$type_prices[$sProduct->getEntityId()] = number_format(($total_price * $config['markup']), 2, '.', '') . $currency;
+						$type_prices[$sProduct->getEntityId()] = number_format(($total_price * $config['markup']), 2, '.', '');
+						$type_prices[$sProduct->getEntityId() . '_reg'] = number_format(($total_price_reg * $config['markup']), 2, '.', '');
 					}
 				}
 			}
@@ -785,10 +796,11 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 	{
 		$suffix = Mage::getStoreConfig('catalog/seo/product_url_suffix', $storeId);
 		if(!empty($suffix)) {
-			if($suffix[0] != '.') {
+			if(($suffix[0] != '.') && ($suffix != '/')) {
 				$suffix = '.' . $suffix;
 			}
 		}
 		return $suffix;
 	}
+
 }
