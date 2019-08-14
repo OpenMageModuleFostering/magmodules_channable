@@ -189,14 +189,14 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getUrlKey()));
 			}
 			if($product->getRequestPath()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getRequestPath()));			
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getRequestPath() . $config['product_url_suffix']));			
 			}			
 		} else {
 			if($product->getUrlKey()) {
 				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getUrlKey()));
 			}
 			if($product->getRequestPath()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getRequestPath()));			
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getRequestPath() . $config['product_url_suffix']));			
 			}			
 		}
 		if(!empty($parent) && !empty($config['conf_switch_urls'])) {
@@ -750,4 +750,14 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 		return $store_id;	
 	}
 
+	public function getProductUrlSuffix($storeId) 
+	{
+		$suffix = Mage::getStoreConfig('catalog/seo/product_url_suffix', $storeId);
+		if(!empty($suffix)) {
+			if($suffix[0] != '.') {
+				$suffix = '.' . $suffix;
+			}
+		}
+		return $suffix;
+	}
 }
