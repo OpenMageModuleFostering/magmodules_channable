@@ -1,28 +1,33 @@
 <?php
 /**
- * Magmodules.eu - http://www.magmodules.eu - info@magmodules.eu
- * =============================================================
- * NOTICE OF LICENSE [Single domain license]
- * This source file is subject to the EULA that is
- * available through the world-wide-web at:
- * http://www.magmodules.eu/license-agreement/
- * =============================================================
- * @category    Magmodules
- * @package     Magmodules_Channable
- * @author      Magmodules <info@magmodules.eu>
- * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/
- * =============================================================
+ * Magmodules.eu - http://www.magmodules.eu
+ *
+ * NOTICE OF LICENSE
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to info@magmodules.eu so we can send you a copy immediately.
+ *
+ * @category      Magmodules
+ * @package       Magmodules_Channable
+ * @author        Magmodules <info@magmodules.eu)
+ * @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+ * @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
  */
 
 class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
 {
 
     /**
-     * @param $config
+     * @param        $config
      * @param string $limit
-     * @param int $page
+     * @param int    $page
      * @param string $type
+     *
      * @return mixed
      */
     public function getProducts($config, $limit = '', $page = 1, $type = '')
@@ -69,7 +74,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
         if (!empty($config['hide_no_stock'])) {
             Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
         }
-            
+
         if ($type != 'count') {
             $attributes = $this->getDefaultAttributes();
 
@@ -125,13 +130,13 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
 
             $collection->joinTable(
                 'cataloginventory/stock_item', 'product_id=entity_id', array(
-                    "qty" => "qty",
-                    "is_in_stock" => "is_in_stock",
-                    "manage_stock" => "manage_stock",
-                    "use_config_manage_stock" => "use_config_manage_stock",
-                    "min_sale_qty" => "min_sale_qty",
-                    "qty_increments" => "qty_increments",
-                    "enable_qty_increments" => "enable_qty_increments",
+                    "qty"                       => "qty",
+                    "is_in_stock"               => "is_in_stock",
+                    "manage_stock"              => "manage_stock",
+                    "use_config_manage_stock"   => "use_config_manage_stock",
+                    "min_sale_qty"              => "min_sale_qty",
+                    "qty_increments"            => "qty_increments",
+                    "enable_qty_increments"     => "enable_qty_increments",
                     "use_config_qty_increments" => "use_config_qty_increments"
                 )
             )->addAttributeToSelect(
@@ -144,96 +149,17 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
                     'qty_increments',
                     'enable_qty_increments',
                     'use_config_qty_increments'
-                    )
+                )
             );
 
             $collection->getSelect()->group('e.entity_id');
-           
+
             $products = $collection->load();
         } else {
             $products = $collection->getSize();
         }
 
         return $products;
-    }
-
-    /**
-     * Araay of default Attributes
-     * @return array
-     */
-    public function getDefaultAttributes()
-    {
-        $attributes = array();
-        $attributes[] = 'url_key';
-        $attributes[] = 'url_path';
-        $attributes[] = 'sku';
-        $attributes[] = 'price';
-        $attributes[] = 'final_price';
-        $attributes[] = 'price_model';
-        $attributes[] = 'price_type';
-        $attributes[] = 'special_price';
-        $attributes[] = 'special_from_date';
-        $attributes[] = 'special_to_date';
-        $attributes[] = 'type_id';
-        $attributes[] = 'tax_class_id';
-        $attributes[] = 'tax_percent';
-        $attributes[] = 'weight';
-        $attributes[] = 'visibility';
-        $attributes[] = 'type_id';
-        $attributes[] = 'image';
-        $attributes[] = 'small_image';
-        $attributes[] = 'thumbnail';
-        $attributes[] = 'status';
-
-        return $attributes;
-    }
-
-
-    /**
-     * @param $products
-     * @param $config
-     * @return array
-     */
-    public function getParents($products, $config)
-    {
-        if (!empty($config['conf_enabled'])) {
-            $ids = array();
-            foreach ($products as $product) {
-                if ($parentId = Mage::helper('channable')->getParentData($product, $config)) {
-                    $ids[] = $parentId;
-                }
-            }
-            
-            if (empty($ids)) {
-                return array();
-            }
-            
-            $collection = Mage::getResourceModel('catalog/product_collection')
-                ->setStore($config['store_id'])
-                ->addStoreFilter($config['store_id'])
-                ->addFinalPrice()
-                ->addUrlRewrite()
-                ->addAttributeToFilter('entity_id', array('in', $ids))
-                ->addAttributeToSelect(array_unique($config['parent_att']));
-                
-             if (!empty($config['hide_no_stock'])) {
-                Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
-             }    
-            
-            return $collection->load();    
-        }
-    }
-
-    /**
-     * @param $atts
-     * @return array
-     */
-    public function getParentAttributeSelection($atts)
-    {
-        $attributes = $this->getDefaultAttributes();
-        $extraAttributes = explode(',', $atts);
-
-        return array_merge($attributes, $extraAttributes);
     }
 
     /**
@@ -247,18 +173,18 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
             if ($filter['type'] == 'select') {
                 $attribute = $filter['attribute'] . '_value';
             }
-            
+
             $condition = $filter['condition'];
             $value = $filter['value'];
-            
+
             if ($attribute == 'final_price') {
-                $cType = array('eq'=> '=', 'neq' => '!=', 'gt' => '>', 'gteq' => '>=', 'lt' => '<', 'lteg' => '<=');
+                $cType = array('eq' => '=', 'neq' => '!=', 'gt' => '>', 'gteq' => '>=', 'lt' => '<', 'lteg' => '<=');
                 if (isset($cType[$condition])) {
                     $collection->getSelect()->where('price_index.final_price ' . $cType[$condition] . ' ' . $value);
                 }
 
                 continue;
-            }    
+            }
 
             switch ($condition) {
                 case 'nin':
@@ -270,7 +196,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
                         array(
                             array(
                                 'attribute' => $attribute,
-                                $condition => $value
+                                $condition  => $value
                             ),
                             array('attribute' => $attribute, 'null' => true)
                         )
@@ -301,6 +227,89 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
                     $collection->addAttributeToFilter($attribute, array($condition => $value));
                     break;
             }
-        }        
+        }
+    }
+
+    /**
+     * Araay of default Attributes
+     *
+     * @return array
+     */
+    public function getDefaultAttributes()
+    {
+        $attributes = array();
+        $attributes[] = 'url_key';
+        $attributes[] = 'url_path';
+        $attributes[] = 'sku';
+        $attributes[] = 'price';
+        $attributes[] = 'final_price';
+        $attributes[] = 'price_model';
+        $attributes[] = 'price_type';
+        $attributes[] = 'special_price';
+        $attributes[] = 'special_from_date';
+        $attributes[] = 'special_to_date';
+        $attributes[] = 'type_id';
+        $attributes[] = 'tax_class_id';
+        $attributes[] = 'tax_percent';
+        $attributes[] = 'weight';
+        $attributes[] = 'visibility';
+        $attributes[] = 'type_id';
+        $attributes[] = 'image';
+        $attributes[] = 'small_image';
+        $attributes[] = 'thumbnail';
+        $attributes[] = 'status';
+
+        return $attributes;
+    }
+
+    /**
+     * @param $products
+     * @param $config
+     *
+     * @return array|bool
+     */
+    public function getParents($products, $config)
+    {
+        if (!empty($config['conf_enabled'])) {
+            $ids = array();
+            foreach ($products as $product) {
+                if ($parentId = Mage::helper('channable')->getParentData($product, $config)) {
+                    $ids[] = $parentId;
+                }
+            }
+
+            if (empty($ids)) {
+                return array();
+            }
+
+            $collection = Mage::getResourceModel('catalog/product_collection')
+                ->setStore($config['store_id'])
+                ->addStoreFilter($config['store_id'])
+                ->addFinalPrice()
+                ->addUrlRewrite()
+                ->addAttributeToFilter('entity_id', array('in', $ids))
+                ->addAttributeToSelect(array_unique($config['parent_att']));
+
+            if (!empty($config['hide_no_stock'])) {
+                Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
+            }
+
+            return $collection->load();
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $atts
+     *
+     * @return array
+     */
+    public function getParentAttributeSelection($atts)
+    {
+        $attributes = $this->getDefaultAttributes();
+        $extraAttributes = explode(',', $atts);
+
+        return array_merge($attributes, $extraAttributes);
     }
 }

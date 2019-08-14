@@ -1,18 +1,22 @@
 <?php
 /**
- * Magmodules.eu - http://www.magmodules.eu - info@magmodules.eu
- * =============================================================
- * NOTICE OF LICENSE [Single domain license]
- * This source file is subject to the EULA that is
- * available through the world-wide-web at:
- * http://www.magmodules.eu/license-agreement/
- * =============================================================
- * @category    Magmodules
- * @package     Magmodules_Channable
- * @author      Magmodules <info@magmodules.eu>
- * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/
- * =============================================================
+ * Magmodules.eu - http://www.magmodules.eu
+ *
+ * NOTICE OF LICENSE
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to info@magmodules.eu so we can send you a copy immediately.
+ *
+ * @category      Magmodules
+ * @package       Magmodules_Channable
+ * @author        Magmodules <info@magmodules.eu)
+ * @copyright     Copyright (c) 2017 (http://www.magmodules.eu)
+ * @license       http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ *
  */
 
 class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends Mage_Core_Block_Html_Select
@@ -20,6 +24,7 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
 
     /**
      * @param $inputName
+     *
      * @return $this
      */
     public function setInputName($inputName)
@@ -31,6 +36,7 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
 
     /**
      * @param $columnName
+     *
      * @return $this
      */
     public function setColumnName($columnName)
@@ -42,6 +48,7 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
 
     /**
      * @param $column
+     *
      * @return $this
      */
     public function setColumn($column)
@@ -116,9 +123,9 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
             } else {
                 $html .= $this->_optionToHtml(
                     array(
-                    'value' => $value,
-                    'label' => $label,
-                    'params' => $params
+                        'value'  => $value,
+                        'label'  => $label,
+                        'params' => $params
                     ), in_array($value, $values)
                 );
             }
@@ -159,8 +166,9 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
     }
 
     /**
-     * @param $option
+     * @param      $option
      * @param bool $selected
+     *
      * @return string
      */
     protected function _optionToHtml($option, $selected = false)
@@ -185,14 +193,15 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
 
         return sprintf(
             '<option value="%s"%s %s>%s</option>',
-            $this->htmlEscape($option['value']),
+            $this->escapeHtml($option['value']),
             $selectedHtml,
-            $params, $this->htmlEscape($option['label'])
+            $params, $this->escapeHtml($option['label'])
         );
     }
 
     /**
      * @param $optionValue
+     *
      * @return string
      */
     public function calcOptionHash($optionValue)
