@@ -141,7 +141,7 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		$attributes['name']			= array('label' => 'name', 'source' => Mage::getStoreConfig('channable/data/name', $storeId));
 		$attributes['description']	= array('label' => 'description', 'source' => Mage::getStoreConfig('channable/data/description', $storeId));
 		$attributes['product_url']	= array('label' => 'url', 'source' => '');
-		$attributes['image_link']	= array('label' => 'image', 'source' => '');		
+		$attributes['image_link']	= array('label' => 'image', 'source' => Mage::getStoreConfig('channable/data/default_image', $storeId));
 		$attributes['price']		= array('label' => 'price', 'source' => '');		
 		$attributes['sku']			= array('label' => 'sku', 'source' => Mage::getStoreConfig('channable/data/sku', $storeId));
 		$attributes['brand']		= array('label' => 'brand', 'source' => Mage::getStoreConfig('channable/data/brand', $storeId));

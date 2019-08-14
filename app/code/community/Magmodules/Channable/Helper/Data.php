@@ -102,12 +102,14 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 		}
 
 		if($config['field'][$field]['type'] == 'media_image') {
-			if(!empty($value)) {
-				if($value != 'no_selection') {
-					$value = $config['media_url'] . 'catalog/product' . $value; 
-				} else {
-					$value = '';
-				}	
+			if($field != 'image_link') {
+				if(!empty($value)) {
+					if($value != 'no_selection') {
+						$value = $config['media_url'] . 'catalog/product' . $value; 
+					} else {
+						$value = '';
+					}	
+				}
 			}
 		}
 		
@@ -250,27 +252,26 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 						}	
 					}
 				}
-			} else { // FOR OLDER VERSIONS	
+			} else { 
 				if($product->getThumbnail()) {		
 					if($product->getThumbnail() != 'no_selection') {
 						$image = $config['media_image_url'] . $product->getThumbnail(); 
-						$image_data['image']['thumb'] = $image;
+						$image_data['image']['thumbnail'] = $image;
 					}
 				}
 				if($product->getSmallImage()) {		
 					if($product->getSmallImage() != 'no_selection') {
 						$image = $config['media_image_url'] . $product->getSmallImage(); 
-						$image_data['image']['small'] = $image;
+						$image_data['image']['small_image'] = $image;
 					}
 				}	
 				if($product->getImage()) {		
 					if($product->getImage() != 'no_selection') {
 						$image = $config['media_image_url'] . $product->getImage(); 
-						$image_data['image']['base'] = $image;					
+						$image_data['image']['image'] = $image;					
 					}
 				}
 			}
-			
 			if(!empty($config['images'])) {
 				$image_data['image_link'] = $image;
 				$container = new Varien_Object(array('attribute' => new Varien_Object(array('id' => $config['media_gallery_id']))));
@@ -288,7 +289,11 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 				}
 				return $image_data; 
 			} else {
-				return $image;
+				if(!empty($image_data['image']['image'])) {
+					return $image_data['image']['image'];
+				} else {
+					return $image;
+				}
 			}
 		}
 	}
