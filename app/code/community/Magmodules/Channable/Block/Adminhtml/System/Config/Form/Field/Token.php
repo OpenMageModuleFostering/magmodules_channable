@@ -15,31 +15,17 @@
  * =============================================================
  */
  
-class Magmodules_Channable_Block_Adminhtml_System_Config_Form_Field_Token extends Mage_Adminhtml_Block_System_Config_Form_Field {
+class Magmodules_Channable_Block_Adminhtml_System_Config_Form_Field_Token
+    extends Mage_Adminhtml_Block_System_Config_Form_Field
+{
 
-    public function _getElementHtml(Varien_Data_Form_Element_Abstract $element) 
-    {		
-		if($token = Mage::getStoreConfig('channable/connect/token')) {
-			return $token;
-		} else {			
-			if($license = Mage::getStoreConfig('channable/general/license_key')) {		
-				$token = substr(Mage::getStoreConfig('channable/general/license_key'), 10, -15);
-				$config = new Mage_Core_Model_Config();
-				$config->saveConfig('channable/connect/token', $token, 'default', 0);
-				Mage::app()->getCacheInstance()->cleanType('config');
-				return $token;								
-			} else {
-				$token = '';
-				$chars = str_split("abcdefghijklmnopqrstuvwxyz0123456789");
-			    for($i = 0; $i < 16; $i++) {
-	    			$token .= $chars[array_rand($chars)];
-    			}
-				$config = new Mage_Core_Model_Config();
-				$config->saveConfig('channable/connect/token', $token, 'default', 0);
-				Mage::app()->getCacheInstance()->cleanType('config');
-				return $token;								
-			}
-		}
+    /**
+     * @param Varien_Data_Form_Element_Abstract $element
+     * @return mixed
+     */
+    public function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
+    {        
+        return Mage::getStoreConfig('channable/connect/token');
     }
     
 }

@@ -11,67 +11,74 @@
  * @package     Magmodules_Channable
  * @author      Magmodules <info@magmodules.eu>
  * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/  
+ * @license     http://www.magmodules.eu/license-agreement/
  * =============================================================
  */
 
-class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends Mage_Core_Block_Html_Select {
-   
-	public function setInputName($inputName) 
-	{
-		$this->setData('inputname', $inputName);
-        return $this;
-	}
-	
-	public function getInputName() 
-	{
-		return $this->getData('inputname');
-	}
-	
-	public function setColumnName($columnName) 
-	{
-		$this->setData('columnname', $columnName);		
-        return $this;
-	}
-	
-	public function getColumnName() 
-	{
-		return $this->getData('columnname');        
-	}
-	
-	public function setColumn($column) 
-	{
-		$this->setData('column', $column);
-        return $this;
-	}
-	
-	public function getColumn() 
-	{
-		return $this->getData('column');
-	}
-	
-	public function getExtraParams() 
-	{
-		$column = $this->getColumn(); 
-		if($column && isset($column['style'])) {
-			return ' style="'.$column['style'].'" ';
-		} else {
-			return '';
-		}
-	}
-	
-    protected function _toHtml() 
+class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends Mage_Core_Block_Html_Select
+{
+
+    /**
+     * @param $inputName
+     * @return $this
+     */
+    public function setInputName($inputName)
     {
-        if(!$this->_beforeToHtml()) {
+        $this->setData('inputname', $inputName);
+
+        return $this;
+    }
+
+    /**
+     * @param $columnName
+     * @return $this
+     */
+    public function setColumnName($columnName)
+    {
+        $this->setData('columnname', $columnName);
+
+        return $this;
+    }
+
+    /**
+     * @param $column
+     * @return $this
+     */
+    public function setColumn($column)
+    {
+        $this->setData('column', $column);
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHtml()
+    {
+        return $this->toHtml();
+    }
+
+    /**
+     * @return string
+     */
+    protected function _toHtml()
+    {
+        if (!$this->_beforeToHtml()) {
             return '';
         }
 
-        $html = '<select name="'.$this->getInputName().'" class="'.$this->getClass().'" '.$this->getExtraParams().'>';
-            
+        $html = sprintf(
+            '<select name="%s" class="%s" %s>',
+            $this->getInputName(),
+            $this->getClass(),
+            $this->getExtraParams()
+        );
+
         $values = $this->getValue();
 
-        if (!is_array($values)){
-            if (!is_null($values)) {
+        if (!is_array($values)) {
+            if (!empty($values)) {
                 $values = array($values);
             } else {
                 $values = array();
@@ -79,11 +86,11 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
         }
 
         $isArrayOption = true;
-    	
-    	foreach($this->getOptions() as $key => $option) {
-            if($isArrayOption && is_array($option)) {
-                $value  = $option['value'];
-                $label  = $option['label'];
+
+        foreach ($this->getOptions() as $key => $option) {
+            if ($isArrayOption && is_array($option)) {
+                $value = $option['value'];
+                $label = $option['label'];
                 $params = (!empty($option['params'])) ? $option['params'] : array();
             } else {
                 $value = $key;
@@ -92,36 +99,71 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
                 $params = array();
             }
 
-            if(is_array($value)) {
-                $html.= '<optgroup label="'.$label.'">';
-                foreach($value as $keyGroup => $optionGroup) {
-                    if(!is_array($optionGroup)) {
+            if (is_array($value)) {
+                $html .= '<optgroup label="' . $label . '">';
+                foreach ($value as $keyGroup => $optionGroup) {
+                    if (!is_array($optionGroup)) {
                         $optionGroup = array(
                             'value' => $keyGroup,
                             'label' => $optionGroup
                         );
                     }
-                    $html.= $this->_optionToHtml(
-                        $optionGroup,
-                        in_array($optionGroup['value'], $values)
-                    );
+
+                    $html .= $this->_optionToHtml($optionGroup, in_array($optionGroup['value'], $values));
                 }
-                $html.= '</optgroup>';
+
+                $html .= '</optgroup>';
             } else {
-                $html.= $this->_optionToHtml(array(
+                $html .= $this->_optionToHtml(
+                    array(
                     'value' => $value,
                     'label' => $label,
                     'params' => $params
-                ),
-                    in_array($value, $values)
+                    ), in_array($value, $values)
                 );
             }
         }
-        $html.= '</select>';
+
+        $html .= '</select>';
+
         return $html;
     }
 
-    protected function _optionToHtml($option, $selected = false) 
+    /**
+     * @return mixed
+     */
+    public function getInputName()
+    {
+        return $this->getData('inputname');
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtraParams()
+    {
+        $column = $this->getColumn();
+        if ($column && isset($column['style'])) {
+            return ' style="' . $column['style'] . '" ';
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getColumn()
+    {
+        return $this->getData('column');
+    }
+
+    /**
+     * @param $option
+     * @param bool $selected
+     * @return string
+     */
+    protected function _optionToHtml($option, $selected = false)
     {
         $selectedHtml = $selected ? ' selected="selected"' : '';
         if ($this->getIsRenderToJsTemplate() === true) {
@@ -141,21 +183,29 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Renderer_Select extends M
             }
         }
 
-        return sprintf('<option value="%s"%s %s>%s</option>',
+        return sprintf(
+            '<option value="%s"%s %s>%s</option>',
             $this->htmlEscape($option['value']),
             $selectedHtml,
-            $params,
-            $this->htmlEscape($option['label']));
+            $params, $this->htmlEscape($option['label'])
+        );
     }
 
-    public function getHtml() 
+    /**
+     * @param $optionValue
+     * @return string
+     */
+    public function calcOptionHash($optionValue)
     {
-        return $this->toHtml();
-    }
-    
-	public function calcOptionHash($optionValue) 
-	{
         return sprintf('%u', crc32($this->getColumnName() . $this->getInputName() . $optionValue));
     }
-    
+
+    /**
+     * @return mixed
+     */
+    public function getColumnName()
+    {
+        return $this->getData('columnname');
+    }
+
 }

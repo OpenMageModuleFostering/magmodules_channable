@@ -14,20 +14,20 @@
  * @license     http://www.magmodules.eu/license-agreement/  
  * =============================================================
  */
- 
-class Magmodules_Channable_Block_Adminhtml_System_Config_Form_Field_Version
-    extends Mage_Adminhtml_Block_System_Config_Form_Field
-{
 
-    /**
-     * @param Varien_Data_Form_Element_Abstract $element
-     * @return mixed
-     */
-    public function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
-    {
-        $modules = Mage::getConfig()->getNode('modules')->children();
-        $modulesArray = (array)$modules;        
-        return $modulesArray['Magmodules_Channable']->version;
+$token = Mage::getModel('core/config_data')->getCollection()
+    ->addFieldToFilter('path', 'channable/connect/token')        
+    ->addFieldToFilter('scope_id', 0)
+    ->addFieldToFilter('scope', 'default')
+    ->getFirstItem()
+    ->getValue();    
+
+if (empty($token)) {
+    $chars = str_split("abcdefghijklmnopqrstuvwxyz0123456789");
+    for ($i = 0; $i < 32; $i++) {
+        $token .= $chars[array_rand($chars)];
     }
-    
 }
+
+Mage::getModel('core/config')->saveConfig('channable/connect/token', Mage::helper('core')->encrypt($token));
+Mage::app()->getCacheInstance()->cleanType('config');

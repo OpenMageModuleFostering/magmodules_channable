@@ -11,19 +11,25 @@
  * @package     Magmodules_Channable
  * @author      Magmodules <info@magmodules.eu>
  * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/  
+ * @license     http://www.magmodules.eu/license-agreement/
  * =============================================================
  */
- 
-class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Pricemodel {
 
-	public function toOptionArray() {
-		$type = array();
-		$type[] = array('value'=>'', 'label'=> Mage::helper('adminhtml')->__('Use default price'));
-		$type[] = array('value'=>'min', 'label'=> Mage::helper('adminhtml')->__('Use minimum price'));
-		$type[] = array('value'=>'max', 'label'=> Mage::helper('adminhtml')->__('Use maximum price'));
-		$type[] = array('value'=>'total', 'label'=> Mage::helper('adminhtml')->__('Use total price'));
-		return $type;		
-	}
+class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Pricemodel
+{
+
+    /**
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        $type = array();
+        $type[] = array('value' => '', 'label' => Mage::helper('adminhtml')->__('Use default price'));
+        $type[] = array('value' => 'min', 'label' => Mage::helper('adminhtml')->__('Use minimum price'));
+        $type[] = array('value' => 'max', 'label' => Mage::helper('adminhtml')->__('Use maximum price'));
+        $type[] = array('value' => 'total', 'label' => Mage::helper('adminhtml')->__('Use total price'));
+
+        return $type;
+    }
 
 }

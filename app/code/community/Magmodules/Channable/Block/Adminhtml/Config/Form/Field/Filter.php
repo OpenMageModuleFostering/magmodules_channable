@@ -15,38 +15,62 @@
  * =============================================================
  */
 
-class Magmodules_Channable_Block_Adminhtml_Config_Form_Field_Filter extends Mage_Adminhtml_Block_System_Config_Form_Field_Array_Abstract {
+class Magmodules_Channable_Block_Adminhtml_Config_Form_Field_Filter
+    extends Mage_Adminhtml_Block_System_Config_Form_Field_Array_Abstract
+{
 
-	protected $_renders = array();
+    protected $_renders = array();
 
-	public function __construct()
+    /**
+     * Magmodules_Channable_Block_Adminhtml_Config_Form_Field_Filter constructor.
+     */
+    public function __construct()
     {        
         $layout = Mage::app()->getFrontController()->getAction()->getLayout();
-        $renderer_attributes = $layout->createBlock('channable/adminhtml_config_form_renderer_select', '', array('is_render_to_js_template' => true));                							                
-        $renderer_attributes->setOptions(Mage::getModel('channable/adminhtml_system_config_source_attribute')->toOptionArray());
+        $rendererAttributes = $layout->createBlock(
+            'channable/adminhtml_config_form_renderer_select',
+            '',
+            array('is_render_to_js_template' => true)
+        );                                                            
+        $rendererAttributes->setOptions(
+            Mage::getModel('channable/adminhtml_system_config_source_attribute')->toOptionArray()
+        );
        
-        $renderer_conditions = $layout->createBlock('channable/adminhtml_config_form_renderer_select', '', array('is_render_to_js_template' => true));                							                
-        $renderer_conditions->setOptions(Mage::getModel('channable/adminhtml_system_config_source_conditions')->toOptionArray());
+        $rendererConditions = $layout->createBlock(
+            'channable/adminhtml_config_form_renderer_select',
+            '',
+            array('is_render_to_js_template' => true)
+        );                                                            
+        
+        $rendererConditions->setOptions(
+            Mage::getModel('channable/adminhtml_system_config_source_conditions')->toOptionArray()
+        );
 
-        $this->addColumn('attribute', array(
+        $this->addColumn(
+            'attribute', array(
             'label' => Mage::helper('channable')->__('Attribute'),
             'style' => 'width:100px',
-        	'renderer' => $renderer_attributes
-        ));
+            'renderer' => $rendererAttributes
+            )
+        );
         
-        $this->addColumn('condition', array(
+        $this->addColumn(
+            'condition', array(
             'label' => Mage::helper('channable')->__('Condition'),
             'style' => 'width:100px',
-        	'renderer' => $renderer_conditions
-        ));
+            'renderer' => $rendererConditions
+            )
+        );
 
-        $this->addColumn('value', array(
+        $this->addColumn(
+            'value', array(
             'label' => Mage::helper('channable')->__('Value'),
             'style' => 'width:100px',
-        ));        
+            )
+        );        
 
-        $this->_renders['attribute'] = $renderer_attributes; 
-        $this->_renders['condition'] = $renderer_conditions; 
+        $this->_renders['attribute'] = $rendererAttributes; 
+        $this->_renders['condition'] = $rendererConditions; 
 
         $this->_addAfter = false;
         $this->_addButtonLabel = Mage::helper('channable')->__('Add Filter');
@@ -54,14 +78,16 @@ class Magmodules_Channable_Block_Adminhtml_Config_Form_Field_Filter extends Mage
     }
 
 
-	protected function _prepareArrayRow(Varien_Object $row)
-    {    	
-    	foreach ($this->_renders as $key => $render){
-	        $row->setData(
-	            'option_extra_attr_' . $render->calcOptionHash($row->getData($key)),
-	            'selected="selected"'
-	        );
-    	}
-    } 
-
+    /**
+     * @param Varien_Object $row
+     */
+    protected function _prepareArrayRow(Varien_Object $row)
+    {        
+        foreach ($this->_renders as $key => $render) {
+            $row->setData(
+                'option_extra_attr_' . $render->calcOptionHash($row->getData($key)),
+                'selected="selected"'
+            );
+        }
+    }
 }

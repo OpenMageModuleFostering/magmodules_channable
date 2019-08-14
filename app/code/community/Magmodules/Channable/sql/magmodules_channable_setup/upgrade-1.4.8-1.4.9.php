@@ -11,23 +11,26 @@
  * @package     Magmodules_Channable
  * @author      Magmodules <info@magmodules.eu>
  * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/
+ * @license     http://www.magmodules.eu/license-agreement/  
  * =============================================================
  */
+ 
+$installer = new Mage_Catalog_Model_Resource_Eav_Mysql4_Setup('core_setup');
+$installer->startSetup();
 
-class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Shipping
-{
+$installer->addAttribute(
+    'catalog_category', 'channable_exclude', array(
+    'group' => 'Feeds',
+    'input' => 'select',
+    'type' => 'int',
+    'source' => 'eav/entity_attribute_source_boolean',
+    'label' => 'Exclude Category for Channable',
+    'required' => false,
+    'user_defined' => true,
+    'visible' => true,
+    'global' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_GLOBAL,
+    'position' => 99,
+    )
+);
 
-    /**
-     * @return array
-     */
-    public function toOptionArray()
-    {
-        $type = array();
-        $type[] = array('value' => 'price', 'label' => Mage::helper('channable')->__('Price'));
-        $type[] = array('value' => 'weight', 'label' => Mage::helper('channable')->__('Weight'));
-
-        return $type;
-    }
-
-}
+$installer->endSetup();

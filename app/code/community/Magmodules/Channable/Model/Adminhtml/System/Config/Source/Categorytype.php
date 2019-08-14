@@ -11,18 +11,23 @@
  * @package     Magmodules_Channable
  * @author      Magmodules <info@magmodules.eu>
  * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/  
+ * @license     http://www.magmodules.eu/license-agreement/
  * =============================================================
  */
- 
-class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Categorytype {
 
-	public function toOptionArray() 
-	{
-		$type = array();
-		$type[] = array('value'=>'include', 'label'=> Mage::helper('channable')->__('Include by Category'));
-		$type[] = array('value'=>'exclude', 'label'=> Mage::helper('channable')->__('Exclude by Category'));
-		return $type;		
-	}
+class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Categorytype
+{
+
+    /**
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        $type = array();
+        $type[] = array('value' => 'include', 'label' => Mage::helper('channable')->__('Include by Category'));
+        $type[] = array('value' => 'exclude', 'label' => Mage::helper('channable')->__('Exclude by Category'));
+
+        return $type;
+    }
 
 }

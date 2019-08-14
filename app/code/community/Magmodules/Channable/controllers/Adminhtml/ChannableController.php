@@ -11,25 +11,35 @@
  * @package     Magmodules_Channable
  * @author      Magmodules <info@magmodules.eu>
  * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/  
+ * @license     http://www.magmodules.eu/license-agreement/
  * =============================================================
  */
- 
-class Magmodules_Channable_Adminhtml_ChannableController extends Mage_Adminhtml_Controller_Action {
-	
-	public function addToFlatAction() 
-	{
-		$non_flat_attributes = Mage::helper('channable')->checkFlatCatalog(Mage::getModel("channable/channable")->getFeedAttributes()); 
-		foreach($non_flat_attributes as $key => $value) {
-			$_attribute = Mage::getModel('catalog/resource_eav_attribute')->load($key)->setUsedInProductListing(1)->save();
-		}
-		Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('channable')->__('Attributes added to Flat Catalog, please reindex Product Flat Data.'));
+
+class Magmodules_Channable_Adminhtml_ChannableController extends Mage_Adminhtml_Controller_Action
+{
+
+    /**
+     * addToFlat contoller action
+     */
+    public function addToFlatAction()
+    {
+        $nonFlatAttributes = Mage::helper('channable')->checkFlatCatalog(Mage::getModel("channable/channable")->getFeedAttributes());
+
+        foreach ($nonFlatAttributes as $key => $value) {
+            Mage::getModel('catalog/resource_eav_attribute')->load($key)->setUsedInProductListing(1)->save();
+        }
+
+        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('channable')->__('Attributes added to Flat Catalog, please reindex Product Flat Data.'));
+
         $this->_redirect('adminhtml/system_config/edit/section/channable');
-	}
- 
-	protected function _isAllowed() 
-	{
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function _isAllowed()
+    {
         return Mage::getSingleton('admin/session')->isAllowed('admin/channable/channable');
-    }       
-    
+    }
+
 }

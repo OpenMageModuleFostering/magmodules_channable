@@ -11,18 +11,23 @@
  * @package     Magmodules_Channable
  * @author      Magmodules <info@magmodules.eu>
  * @copyright   Copyright (c) 2016 (http://www.magmodules.eu)
- * @license     http://www.magmodules.eu/license-agreement/  
+ * @license     http://www.magmodules.eu/license-agreement/
  * =============================================================
  */
- 
-class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Action {
 
-	public function toOptionArray() 
-	{
-		$position = array();
-		$position[] = array('value'=> '', 'label'=> Mage::helper('channable')->__('-- None'));
-		$position[] = array('value'=> 'strip_tags', 'label'=> Mage::helper('channable')->__('Strip Tags'));	
-		return $position;
-	}
-	
+class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Action
+{
+
+    /**
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        $position = array();
+        $position[] = array('value' => '', 'label' => Mage::helper('channable')->__('-- None'));
+        $position[] = array('value' => 'strip_tags', 'label' => Mage::helper('channable')->__('Strip Tags'));
+
+        return $position;
+    }
+
 }

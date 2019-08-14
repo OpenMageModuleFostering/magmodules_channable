@@ -15,47 +15,70 @@
  * =============================================================
  */
 
-class Magmodules_Channable_Block_Adminhtml_Config_Form_Field_Shipping extends Mage_Adminhtml_Block_System_Config_Form_Field_Array_Abstract {
+class Magmodules_Channable_Block_Adminhtml_Config_Form_Field_Shipping
+    extends Mage_Adminhtml_Block_System_Config_Form_Field_Array_Abstract
+{
 
-	protected $_renders = array();
-   	
-    public function __construct() 
+    protected $_renders = array();
+
+    /**
+     * Magmodules_Channable_Block_Adminhtml_Config_Form_Field_Shipping constructor.
+     */
+    public function __construct()
     {        
         $layout = Mage::app()->getFrontController()->getAction()->getLayout();
-        $renderer_coutries = $layout->createBlock('channable/adminhtml_config_form_renderer_select', '', array('is_render_to_js_template' => true));                							                
-        $renderer_coutries->setOptions(Mage::getModel('channable/adminhtml_system_config_source_countries')->toOptionArray());
+        $rendererCoutries = $layout->createBlock(
+            'channable/adminhtml_config_form_renderer_select',
+            '',
+            array('is_render_to_js_template' => true)
+        );
 
-        $this->addColumn('country', array(
+        $rendererCoutries->setOptions(
+            Mage::getModel('channable/adminhtml_system_config_source_countries')->toOptionArray()
+        );
+
+        $this->addColumn(
+            'country', array(
             'label' => Mage::helper('channable')->__('Country'),
             'style' => 'width:120px',
-        	'renderer' => $renderer_coutries
-        ));    
+            'renderer' => $rendererCoutries
+            )
+        );    
 
-        $this->addColumn('price_from', array(
-            'label' 	=> Mage::helper('channable')->__('Price From'),
-            'style' 	=> 'width:40px',
-        ));
-        $this->addColumn('price_to', array(
-            'label' 	=> Mage::helper('channable')->__('Price To'),
-            'style' 	=> 'width:40px',
-        ));
-        $this->addColumn('cost', array(
-            'label' 	=> Mage::helper('channable')->__('Cost'),
-            'style' 	=> 'width:40px',
-        ));        
+        $this->addColumn(
+            'price_from', array(
+            'label'     => Mage::helper('channable')->__('Price From'),
+            'style'     => 'width:40px',
+            )
+        );
+        $this->addColumn(
+            'price_to', array(
+            'label'     => Mage::helper('channable')->__('Price To'),
+            'style'     => 'width:40px',
+            )
+        );
+        $this->addColumn(
+            'cost', array(
+            'label'     => Mage::helper('channable')->__('Cost'),
+            'style'     => 'width:40px',
+            )
+        );        
 
-        $this->_renders['country'] = $renderer_coutries; 
+        $this->_renders['country'] = $rendererCoutries;
         
         $this->_addAfter = false;
         $this->_addButtonLabel = Mage::helper('channable')->__('Add Option');
         parent::__construct();
     }
-    
-    protected function _prepareArrayRow(Varien_Object $row) 
-    {    	
-    	foreach ($this->_renders as $key => $render) {
-	        $row->setData('option_extra_attr_' . $render->calcOptionHash($row->getData($key)), 'selected="selected"');
-    	}
+
+    /**
+     * @param Varien_Object $row
+     */
+    protected function _prepareArrayRow(Varien_Object $row)
+    {        
+        foreach ($this->_renders as $key => $render) {
+            $row->setData('option_extra_attr_' . $render->calcOptionHash($row->getData($key)), 'selected="selected"');
+        }
     } 
 
 }

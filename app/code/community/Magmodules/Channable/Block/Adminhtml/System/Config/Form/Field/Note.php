@@ -15,12 +15,21 @@
  * =============================================================
  */
 
-class Magmodules_Channable_Block_Adminhtml_System_Config_Form_Field_Note  extends Mage_Adminhtml_Block_Abstract implements Varien_Data_Form_Element_Renderer_Interface {
+class Magmodules_Channable_Block_Adminhtml_System_Config_Form_Field_Note
+    extends Mage_Adminhtml_Block_Abstract implements Varien_Data_Form_Element_Renderer_Interface
+{
 
-    public function render(Varien_Data_Form_Element_Abstract $element) 
+    /**
+     * @param Varien_Data_Form_Element_Abstract $element
+     * @return string
+     */
+    public function render(Varien_Data_Form_Element_Abstract $element)
     {
-        $useContainerId = $element->getData('use_container_id');
-        return sprintf('<tr id="row_%s"><td colspan="5" class="label" style="margin-bottom: 10px;">%s</td></tr>', $element->getHtmlId(), $element->getLabel());
+        return sprintf(
+            '<tr id="row_%s"><td colspan="5" class="label" style="margin-bottom: 10px;">%s</td></tr>',
+            $element->getHtmlId(),
+            $element->getLabel()
+        );
     }
     
 }

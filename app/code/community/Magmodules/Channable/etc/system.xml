@@ -32,14 +32,14 @@
 			<show_in_default>1</show_in_default>
 			<show_in_website>1</show_in_website>
 			<show_in_store>1</show_in_store>
-			<groups>		
+			<groups>
 				<info>
 					<frontend_model>channable/adminhtml_widget_info_info</frontend_model>
 					<sort_order>1</sort_order>
 					<show_in_default>1</show_in_default>
 					<show_in_website>1</show_in_website>
 					<show_in_store>1</show_in_store>
-				</info>								
+				</info>
 				<connect translate="label" module="channable">
 					<label>General - Settings</label>
 					<frontend_type>text</frontend_type>
@@ -58,7 +58,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </version>
-                        <token translate="label">
+                        <token_encrypted translate="label">
                             <label>Connect Token</label>
                             <frontend_type>text</frontend_type>
                             <frontend_model>channable/adminhtml_system_config_form_field_token</frontend_model>
@@ -66,7 +66,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                        </token>
+                        </token_encrypted>
 						<connect_heading translate="label">
 							<label>Feed settings</label>
 							<frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -74,7 +74,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</connect_heading>  
+						</connect_heading>
 						<enabled translate="label">
 							<label>Enabled Feed</label>
 							<frontend_type>select</frontend_type>
@@ -92,7 +92,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 							<comment>Limits the amount of product Channable will import per run. This setting wil not limit the total products sent to Channable!</comment>
-						</max_products> 
+						</max_products>
 					</fields>
 				</connect>
 				<data translate="label" module="channable">
@@ -111,7 +111,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</note> 
+						</note>
 						<heading_general translate="label">
 							<label>The General Fields</label>
 							<frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -128,7 +128,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</name>						
+						</name>
 						<description translate="label">
 							<label>Description</label>
 							<frontend_type>select</frontend_type>
@@ -163,7 +163,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</heading_images>									
+						</heading_images>
 						<images translate="label">
 							<label>Images</label>
 							<frontend_type>select</frontend_type>
@@ -181,8 +181,8 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-							<depends><images>all</images></depends>							
-						</default_image>							
+							<depends><images>all</images></depends>
+						</default_image>
 						<heading_additional translate="label">
 							<label>The Additional Fields</label>
 							<frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -199,7 +199,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</sku>	
+						</sku>
 						<size translate="label">
 							<label>Size</label>
 							<frontend_type>select</frontend_type>
@@ -244,15 +244,6 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</heading_stock>
-						<stock_status translate="label">
-							<label>Send Status</label>
-							<frontend_type>select</frontend_type>
-							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>31</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</stock_status>	
 						<stock translate="label">
 							<label>Send Stock Level</label>
 							<frontend_type>select</frontend_type>
@@ -351,7 +342,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 							<depends><delivery_be>fixed</delivery_be></depends>
-						</delivery_out_be>	
+						</delivery_out_be>
 						<weight_heading translate="label">
                             <label>Weight</label>
                             <frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -377,8 +368,8 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-							<depends><weight>1</weight></depends>							
-						</weight_units>	
+							<depends><weight>1</weight></depends>
+						</weight_units>
 						<price_heading translate="label">
                             <label>Price Customization</label>
                             <frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -386,7 +377,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </price_heading>  				 
+                        </price_heading>
 						<force_tax translate="label">
                             <label>Force the Tax Usage</label>
                             <frontend_type>select</frontend_type>
@@ -412,9 +403,9 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-							<comment><![CDATA[When the tax percentage is 21% use 21.]]></comment>															
+							<comment><![CDATA[When the tax percentage is 21% use 21.]]></comment>
 							<depends><add_tax>1</add_tax></depends>
-						</tax_percentage> 
+						</tax_percentage>
 						<configurable_heading translate="label">
                             <label>Configurable &amp; Grouped data linkage</label>
                             <frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -431,7 +422,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </conf_enabled>	
+                        </conf_enabled>
 						<conf_fields translate="label">
 							<label>Use the Parent Data for Simple</label>
 							<frontend_type>multiselect</frontend_type>
@@ -441,7 +432,7 @@
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 							<depends><conf_enabled>1</conf_enabled></depends>
-							<comment>Use the parent data</comment>							
+							<comment>Use the parent data</comment>
 						</conf_fields>
 						<conf_switch_urls translate="label">
                             <label>Configurable Switch Urls</label>
@@ -453,7 +444,7 @@
                             <show_in_store>1</show_in_store>
 							<depends><conf_enabled>1</conf_enabled></depends>
 							<comment>Create a specific url for the simple products inside the configurable products to make sure the prices and information is correct.</comment>
-                        </conf_switch_urls>	 						
+                        </conf_switch_urls>
 						<grouped_price translate="label">
                             <label>Grouped Price</label>
                             <frontend_type>select</frontend_type>
@@ -462,7 +453,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </grouped_price>	
+                        </grouped_price>
 					</fields>
 				</data>
 				<advanced translate="label" module="channable">
@@ -481,7 +472,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</note> 
+						</note>
 						<extra_heading translate="label">
                             <label>The Additional Fields</label>
                             <frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -489,16 +480,16 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </extra_heading>                                               
+                        </extra_heading>
 						<extra>
 							<label>The Additional Fields</label>
                             <frontend_model>channable/adminhtml_config_form_field_extra</frontend_model>
-                            <backend_model>channable/adminhtml_system_config_backend_design_extra</backend_model>                            
+                            <backend_model>channable/adminhtml_system_config_backend_design_extra</backend_model>
                             <sort_order>32</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-						</extra>						
+						</extra>
 						<heading_shipping translate="label">
 							<label>The Shipping Price</label>
 							<frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -506,7 +497,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</heading_shipping> 
+						</heading_shipping>
 						<shipping_method translate="label">
                             <label>Shipping Calculation method</label>
                             <frontend_type>select</frontend_type>
@@ -524,9 +515,9 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</shipping_price>															
+						</shipping_price>
 					</fields>
-				</advanced>						
+				</advanced>
 				<filter translate="label" module="channable">
 					<label>Channable - Filter Conditions</label>
 					<frontend_type>text</frontend_type>
@@ -534,7 +525,7 @@
 					<show_in_default>1</show_in_default>
 					<show_in_website>1</show_in_website>
 					<show_in_store>1</show_in_store>
-		            <expanded>1</expanded>										
+		            <expanded>1</expanded>
 					<fields>
                        <note translate="label">
                             <label><![CDATA[This option allows you to include/exclude product from the Channable feed. <br>]]></label>
@@ -542,8 +533,8 @@
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>                            
-                        </note> 				
+                            <show_in_store>1</show_in_store>
+                        </note>
 						<category_heading translate="label">
                             <label>Filter based on Category</label>
                             <frontend_model>channable/adminhtml_system_config_form_field_heading</frontend_model>
@@ -551,7 +542,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </category_heading>      
+                        </category_heading>
                         <category_enabled translate="label">
                             <label>Enabled</label>
                             <frontend_type>select</frontend_type>
@@ -560,7 +551,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </category_enabled>    
+                        </category_enabled>
 						<category_type translate="label">
 							<label>Type of the filter</label>
 							<frontend_type>select</frontend_type>
@@ -570,7 +561,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 							<depends><category_enabled>1</category_enabled></depends>
-						</category_type>		
+						</category_type>
 						<categories translate="label">
 							<label>Category</label>
 							<frontend_type>multiselect</frontend_type>
@@ -605,7 +596,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </advanced_heading>                                              
+                        </advanced_heading>
 						<advanced>
 							<label>Advanced Filter</label>
 							<frontend_model>channable/adminhtml_config_form_field_filter</frontend_model>
@@ -614,9 +605,9 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</advanced>																	                                                                              
-					</fields>                        
-				</filter>		
+						</advanced>
+					</fields>
+				</filter>
 				<server translate="label" module="channable">
 					<label>Overwrite the server settings</label>
 					<frontend_type>text</frontend_type>
@@ -624,8 +615,8 @@
 					<show_in_default>1</show_in_default>
 					<show_in_website>1</show_in_website>
 					<show_in_store>1</show_in_store>
-		            <expanded>1</expanded>										
-					<fields>        				
+		            <expanded>1</expanded>
+					<fields>
 						<overwrite translate="label">
                             <label>Enabled</label>
                             <frontend_type>select</frontend_type>
@@ -635,7 +626,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                             <tooltip>Only use this option if it's necessary to overwrite this setting because of your server memory limit or execution time.</tooltip>
-                        </overwrite>						
+                        </overwrite>
 						<memory_limit translate="label">
 							<label>The Memory Limit</label>
 							<frontend_type>text</frontend_type>
@@ -644,8 +635,8 @@
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 							<depends><overwrite>1</overwrite></depends>
-							<comment><![CDATA[This overwrites the maximum amount of memory in bytes that a script is allowed to allocate, eg 1024M.]]></comment>															
-						</memory_limit> 						
+							<comment><![CDATA[This overwrites the maximum amount of memory in bytes that a script is allowed to allocate, eg 1024M.]]></comment>
+						</memory_limit>
 						<max_execution_time translate="label">
 							<label>The Max Execution Time</label>
 							<frontend_type>text</frontend_type>
@@ -654,10 +645,10 @@
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 							<depends><overwrite>1</overwrite></depends>
-							<comment><![CDATA[This overwrites the maximum time in seconds a script is allowed to run before it is terminated by the parser, eg: 300 (for 5 minutes).]]></comment>															
+							<comment><![CDATA[This overwrites the maximum time in seconds a script is allowed to run before it is terminated by the parser, eg: 300 (for 5 minutes).]]></comment>
 						</max_execution_time>
-					</fields>                        
-				</server>					
+					</fields>
+				</server>
 				<settings translate="label" module="channable">
 					<label>Feeds - Available</label>
 					<frontend_type>text</frontend_type>
@@ -665,16 +656,16 @@
 					<show_in_default>1</show_in_default>
 					<show_in_website>1</show_in_website>
 					<show_in_store>1</show_in_store>
-		            <expanded>1</expanded>										
-					<fields>                          
+		            <expanded>1</expanded>
+					<fields>
                        <note translate="label">
                             <label><![CDATA[Each store view will have their own Channable feed. Use the auto connect button to connect the Feed with your Channable account.]]></label>
                             <frontend_model>channable/adminhtml_system_config_form_field_note</frontend_model>
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>                            
-                        </note>                                                                
+                            <show_in_store>1</show_in_store>
+                        </note>
 						<feeds_text translate="label">
 							<label>Text</label>
                             <frontend_model>channable/adminhtml_system_config_form_field_feeds</frontend_model>
@@ -682,10 +673,10 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</feeds_text>	
-					</fields>                        
-				</settings>													
-			</groups>			
+						</feeds_text>
+					</fields>
+				</settings>
+			</groups>
 		</channable>
 	</sections>
 </config>

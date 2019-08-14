@@ -17,46 +17,56 @@
 */
 -->
 <config>
-	<modules>
-		<Magmodules_Channable>
-			<version>1.4.8</version>
-		</Magmodules_Channable>
-	</modules>
-	<global>
-		<helpers>
-			<channable>
-				<class>Magmodules_Channable_Helper</class>
-			</channable>
-		</helpers>
-		<blocks>
-			<channable>
-				<class>Magmodules_Channable_Block</class>
-			</channable>
-		</blocks>
-		<models>
-			<channable>
-				<class>Magmodules_Channable_Model</class>
-			</channable>
-		</models>
-	</global>
-	<frontend>
-		<routers>
-			<channable>
-				<use>standard</use>
-				<args>
-					<module>Magmodules_Channable</module>
-					<frontName>channable</frontName>
-				</args>
-			</channable>
-		</routers>
+    <modules>
+        <Magmodules_Channable>
+            <version>1.5.0</version>
+        </Magmodules_Channable>
+    </modules>
+    <global>
+        <helpers>
+            <channable>
+                <class>Magmodules_Channable_Helper</class>
+            </channable>
+        </helpers>
+        <blocks>
+            <channable>
+                <class>Magmodules_Channable_Block</class>
+            </channable>
+        </blocks>
+        <models>
+            <channable>
+                <class>Magmodules_Channable_Model</class>
+            </channable>
+        </models>
+        <resources>
+            <magmodules_channable_setup>
+                <setup>
+                    <module>Magmodules_Channable</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </magmodules_channable_setup>
+        </resources>
+    </global>
+    <frontend>
+        <routers>
+            <channable>
+                <use>standard</use>
+                <args>
+                    <module>Magmodules_Channable</module>
+                    <frontName>channable</frontName>
+                </args>
+            </channable>
+        </routers>
         <product>
             <collection>
                 <attributes>
-                    <image />
-               </attributes>
+                    <image/>
+                </attributes>
             </collection>
         </product>
-	</frontend>
+    </frontend>
     <admin>
         <routers>
             <adminhtml>
@@ -68,46 +78,46 @@
             </adminhtml>
         </routers>
     </admin>
-	<adminhtml>
-		<translate>
-			<modules>
-				<magmodules_channable>
-					<files>
-						<default>Magmodules_Channable.csv</default>
-					</files>
-				</magmodules_channable>
-			</modules>
-		</translate>
-	</adminhtml>
-	<default>
-		<channable>
-			<connect>
-				<token></token>
-				<enabled>1</enabled>
-				<max_products>200</max_products>
-			</connect>
-			<data>
-				<name>name</name>
-				<description>description</description>
-				<brand>manufacturer</brand>
-				<ean>sku</ean>
-				<sku>sku</sku>
-				<color>color</color>
-				<size></size>
-				<images>all</images>
-				<material></material>
-				<gender></gender>
-				<delivery>fixed</delivery>
-				<delivery_in>24 Hours</delivery_in>
-				<delivery_out>1-7 Days</delivery_out>
-				<stock_status>1</stock_status>
-				<stock>1</stock>
-			</data>
-			<server>
-				<memory_limit>1024M</memory_limit>
-				<max_execution_time>300</max_execution_time>
-				<overwrite>0</overwrite>		
-			</server>				
-		</channable>
-	</default>
+    <adminhtml>
+        <translate>
+            <modules>
+                <magmodules_channable>
+                    <files>
+                        <default>Magmodules_Channable.csv</default>
+                    </files>
+                </magmodules_channable>
+            </modules>
+        </translate>
+    </adminhtml>
+    <default>
+        <channable>
+            <connect>
+                <token backend_model="adminhtml/system_config_backend_encrypted"></token>
+                <enabled>1</enabled>
+                <max_products>200</max_products>
+            </connect>
+            <data>
+                <name>name</name>
+                <description>description</description>
+                <brand>manufacturer</brand>
+                <ean>sku</ean>
+                <sku>sku</sku>
+                <color>color</color>
+                <size></size>
+                <images>all</images>
+                <material></material>
+                <gender></gender>
+                <delivery>fixed</delivery>
+                <delivery_in>24 Hours</delivery_in>
+                <delivery_out>1-7 Days</delivery_out>
+                <stock_status>1</stock_status>
+                <stock>1</stock>
+            </data>
+            <server>
+                <memory_limit>1024M</memory_limit>
+                <max_execution_time>300</max_execution_time>
+                <overwrite>0</overwrite>
+            </server>
+        </channable>
+    </default>
 </config>
