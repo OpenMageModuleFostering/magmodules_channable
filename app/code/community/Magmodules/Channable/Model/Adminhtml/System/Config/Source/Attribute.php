@@ -27,15 +27,17 @@ class Magmodules_Channable_Model_Adminhtml_System_Config_Source_Attribute {
 		$backend_types = array('text', 'select', 'textarea', 'date', 'int', 'boolean', 'static', 'varchar', 'decimal');
         $attributes = Mage::getResourceModel('catalog/product_attribute_collection')->setOrder('frontend_label','ASC')->addFieldToFilter('backend_type', $backend_types);
         foreach($attributes as $attribute) {
-			if($attribute->getData('frontend_label')) {
-				$label = str_replace("'", "", $attribute->getData('frontend_label'));
-			} else {
-				$label = str_replace("'", "", $attribute->getData('attribute_code'));			
+			if($attribute->getData('attribute_code') != 'price') {
+				if($attribute->getData('frontend_label')) {
+					$label = str_replace("'", "", $attribute->getData('frontend_label'));
+				} else {
+					$label = str_replace("'", "", $attribute->getData('attribute_code'));			
+				}
+				$optionArray[] = array(
+					'value' => $attribute->getData('attribute_code'),
+					'label' => $label,
+				);
 			}
-			$optionArray[] = array(
-				'value' => $attribute->getData('attribute_code'),
-				'label' => $label,
-			);
         }
         return $optionArray;
 	}

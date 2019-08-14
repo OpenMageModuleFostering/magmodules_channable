@@ -185,23 +185,20 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 	public function getProductUrl($product, $config, $parent) 
 	{
 		if(!empty($parent)) {
-			if($parent->getUrlPath()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getUrlPath()));
-			} else {
-				$url = Mage::getModel('catalog/product')->setStoreId($config['store_id'])->load($parent->getId())->getProductUrl();
-				$url = preg_replace('/\?.*/', '', $url);
+			if($parent->getUrlKey()) {
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getUrlKey()));
 			}
+			if($product->getRequestPath()) {
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getRequestPath()));			
+			}			
 		} else {
-			if($product->getUrlPath()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getUrlPath()));
-			} else {
-				$url = Mage::getModel('catalog/product')->setStoreId($config['store_id'])->load($product->getId())->getProductUrl();
-				$url = preg_replace('/\?.*/', '', $url);
-			}		
+			if($product->getUrlKey()) {
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getUrlKey()));
+			}
+			if($product->getRequestPath()) {
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getRequestPath()));			
+			}			
 		}
-		if(!empty($config['url_suffix'])) {
-			$url = $url . '?' . $config['url_suffix'];
-		}	
 		if(!empty($parent) && !empty($config['conf_switch_urls'])) {
 			if($parent->getTypeId() == 'configurable') {
 				$productAttributeOptions = $parent->getTypeInstance(true)->getConfigurableAttributesAsArray($parent);
@@ -295,7 +292,9 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 				return false;
 			}
 		}
-		return $config['condition_default']; 
+		if(!empty($config['condition_default'])) {
+			return $config['condition_default']; 
+		} 	
 	}
 
 	public function getProductBundle($product, $config) 
@@ -360,10 +359,17 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 					}	
 				}
 			}
-			return $products_cat;
+			return $this->getSortedArray($products_cat, 'level');
 		}
 	}
-	
+
+	function getSortedArray($data, $sort) 
+	{ 
+		$code = "return strnatcmp(\$a['$sort'], \$b['$sort']);"; 
+		usort($data, create_function('$a,$b', $code)); 
+		return array_reverse($data); 
+	} 
+		
 	public function getProductData($product, $data, $config = '') 
 	{
 		$type = $data['type'];

@@ -53,6 +53,13 @@ class Magmodules_Channable_Block_Adminhtml_Widget_Info_Info extends Mage_Adminht
 			$html = $msg . $html;
 		}
 
+		$flat_product = Mage::getStoreConfig('catalog/frontend/flat_catalog_product');
+		$flat_category = Mage::getStoreConfig('catalog/frontend/flat_catalog_category');
+		if((!$flat_product) || (!$flat_category)) {
+			$msg = '<div id="messages"><ul class="messages"><li class="error-msg"><ul><li><span>' . Mage::helper('channable')->__('Please enable "Flat Catalog Category" and "Flat Catalog Product" for the extension to work properly. <a href="https://www.magmodules.eu/help/enable-flat-catalog/" target="_blank">More information.</a>') . '</span></li></ul></li></ul></div>';
+			$html = $html . $msg;
+		}
+		
 		if(empty($oldversion)) {
 			if(Mage::getStoreConfig('catalog/frontend/flat_catalog_product')) {
 				$store_id =  Mage::helper('channable')->getStoreIdConfig();

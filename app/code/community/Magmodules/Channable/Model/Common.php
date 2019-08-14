@@ -24,6 +24,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
         $collection->setStore($store_id);
         $collection->addStoreFilter($store_id);
         $collection->addFinalPrice();
+		$collection->addUrlRewrite();
 
 		if(!empty($config['filter_enabled'])) {			
 			$type = $config['filter_type'];
@@ -54,8 +55,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 
 			// All attributes
 			$attributes = array(); 
-			$attributes[] = 'url_path';
-			$attributes[] = 'url_key';
+	        $attributes[] = 'url_key';        
 			$attributes[] = 'sku';
 			$attributes[] = 'price';
 			$attributes[] = 'final_price';
@@ -150,10 +150,48 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract {
 					}				
 				}
 			} 
-			$collection->joinTable('cataloginventory/stock_item', 'product_id=entity_id', array("qty" => "qty", "stock_status" => "is_in_stock", "manage_stock" => "manage_stock", "use_config_manage_stock" => "use_config_manage_stock"))->addAttributeToSelect(array('qty', 'stock_status', 'manage_stock', 'use_config_manage_stock'));		
+			$collection->joinTable('cataloginventory/stock_item', 'product_id=entity_id', array("qty" => "qty", "stock_status" => "is_in_stock", "manage_stock" => "manage_stock", "use_config_manage_stock" => "use_config_manage_stock", "min_sale_qty" => "min_sale_qty", "qty_increments" => "qty_increments", "enable_qty_increments" => "enable_qty_increments" ,"use_config_qty_increments" => "use_config_qty_increments"))->addAttributeToSelect(array('qty', 'stock_status', 'manage_stock', 'use_config_manage_stock', 'min_sale_qty', 'qty_increments', 'enable_qty_increments', 'use_config_qty_increments'));		
 			$collection->getSelect()->group('e.entity_id');               
+			if(!empty($config['hide_no_stock'])) {
+				Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
+			}
 			$products = $collection->load();			
 		} else {
+			if(!empty($config['filters'])) {
+				foreach($config['filters'] as $filter) {
+					$attribute = $filter['attribute'];
+					if($filter['type'] == 'select') {
+						$attribute = $filter['attribute'] . '_value';
+					}
+					$condition = $filter['condition'];
+					$value = $filter['value'];
+					switch ($condition) {
+						case 'nin':								
+							if(strpos($value, ',') !== FALSE) { $value = explode(',', $value); }
+							$collection->addAttributeToFilter(array(array('attribute' => $attribute, $condition => $value), array('attribute' => $attribute, 'null' => true)));
+							break;
+						case 'in';
+							if(strpos($value, ',') !== FALSE) { $value = explode(',', $value); }
+							$collection->addAttributeToFilter($attribute, array($condition => $value));        					
+							break;					
+						case 'neq':								
+							$collection->addAttributeToFilter(array(array('attribute' => $attribute, $condition => $value), array('attribute' => $attribute, 'null' => true)));
+							break;
+						case 'empty':								
+							$collection->addAttributeToFilter($attribute, array('null' => true));     					
+							break;
+						case 'not-empty':								
+							$collection->addAttributeToFilter($attribute, array('notnull' => true));				
+							break;
+						default:
+							$collection->addAttributeToFilter($attribute, array($condition => $value));        					
+							break;
+					}				
+				}
+			} 
+			if(!empty($config['hide_no_stock'])) {
+				Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);    					
+			}
 			$products = $collection->getSize();
 		}	
         return $products;

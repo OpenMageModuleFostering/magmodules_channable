@@ -25,7 +25,7 @@ class Magmodules_Channable_Model_Adminhtml_System_Config_Backend_Design_Filter e
             if(count($value)) { 
             	$value = $this->orderData($value, 'attribute');
 				foreach($value as $key => $field){													
-					if(!empty($field['attribute']) && !empty($field['condition']) &&  !empty($field['value'])) {
+					if(!empty($field['attribute']) && !empty($field['condition'])) {
 						$attribute = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $field['attribute']);							
 						$value[$key]['attribute'] = $field['attribute'];				
 						$value[$key]['condition'] = $field['condition'];				

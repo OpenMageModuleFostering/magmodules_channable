@@ -92,6 +92,8 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		$config['conf_fields']			= Mage::getStoreConfig('channable/data/conf_fields', $storeId);	
 		$config['conf_switch_urls']		= Mage::getStoreConfig('channable/data/conf_switch_urls', $storeId);	
 		$config['stock_manage']			= Mage::getStoreConfig('cataloginventory/item_options/manage_stock');
+		$config['use_qty_increments']	= Mage::getStoreConfig('cataloginventory/item_options/enable_qty_increments');
+		$config['qty_increments']		= Mage::getStoreConfig('cataloginventory/item_options/qty_increments');
 		$config['delivery'] 			= Mage::getStoreConfig('channable/data/delivery', $storeId);
 		$config['delivery_att'] 		= Mage::getStoreConfig('channable/data/delivery_att', $storeId);
 		$config['delivery_in'] 			= Mage::getStoreConfig('channable/data/delivery_in', $storeId);
@@ -275,6 +277,41 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		return $category;		
 	}
 
+	protected function getStockData($product_data, $config, $product) 
+	{			
+		$stock_data = array();
+		if(!empty($product_data['qty'])) {
+			$stock_data['qty'] = $product_data['qty'];
+		} else {
+			$stock_data['qty'] = (string)'0';		
+		}	
+		if($product->getUseConfigManageStock()) {
+			$stock_data['manage_stock'] = (string)$config['stock_manage'];
+		} else {
+			$stock_data['manage_stock'] = (string)$product->getManageStock();			
+		}	
+		if(!empty($product['min_sale_qty'])) {
+			$stock_data['min_sale_qty'] = (string)round($product['min_sale_qty']);
+		} else {
+			$stock_data['min_sale_qty'] = '1';	
+		}
+		if($product->getUseEnableQtyIncrements()) {
+			if(!empty($config['use_qty_increments'])) {
+				$stock_data['qty_increments'] = (string)$config['qty_increments'];
+			}	
+		} else {
+			if($product->getUseConfigQtyIncrements()) {
+				$stock_data['qty_increments'] = (string)$config['qty_increments'];			
+			} else {
+				$stock_data['qty_increments'] = round($product['qty_increments']);				
+			}			
+		}	
+		if(empty($stock_data['qty_increments'])) {
+			$stock_data['qty_increments'] = '1';
+		}	
+		return $stock_data;		
+	}
+	
 	public function getImages($product_data, $config) 
 	{			
 		$_images = array(); 
@@ -287,13 +324,11 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 				$_images['image_link'] = $product_data['image']['base'];
 			}						
 		}
-		
 		if(empty($_images['image_link'])) {
 			if(!empty($product_data['image_link'])) {
 				$_images['image_link'] = $product_data['image_link'];
 			}	
 		}	
-		
 		if(!empty($product_data['image']['all'])) {
 			$_additional = array();
 			foreach($product_data['image']['all'] as $image) {
@@ -324,6 +359,9 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		}
 		if($_category_data = $this->getCategoryData($product_data, $config)) {
 			$_extra = array_merge($_extra, $_category_data);
+		}
+		if($_stock_data = $this->getStockData($product_data, $config, $product)) {
+			$_extra = array_merge($_extra, $_stock_data);
 		}
 		if($config['images'] == 'all') {
 			if($_images = $this->getImages($product_data, $config)) {
