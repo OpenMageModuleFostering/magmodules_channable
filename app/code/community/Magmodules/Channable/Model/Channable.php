@@ -25,249 +25,17 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
      * @param $timeStart
      * @return array
      */
-    public function generateFeed($storeId, $limit = '', $page = 1, $timeStart)
+    public function generateFeed($storeId, $limit = '', $timeStart, $page = 1)
     {
         $this->setMemoryLimit($storeId);
         $config = $this->getFeedConfig($storeId);
         $this->cleanItemUpdates($storeId, $page);
         $products = $this->getProducts($config, $limit, $page);
-        $prices = Mage::helper('channable')->getTypePrices($config, $products);
-        if ($feed = $this->getFeedData($products, $config, $timeStart, $prices, $page)) {
+        $parents = $this->getParents($products, $config);
+        $prices = Mage::helper('channable')->getTypePrices($config, $parents);
+        $parentAttributes = Mage::helper('channable')->getConfigurableAttributesAsArray($parents, $config);
+        if ($feed = $this->getFeedData($products, $parents, $config, $parentAttributes, $timeStart, $prices, $page)) {
             return $feed;
-        }
-    }
-
-    /**
-     * @param $storeId
-     */
-    protected function setMemoryLimit($storeId)
-    {
-        if (Mage::getStoreConfig('channable/server/overwrite', $storeId)) {
-            if ($memory_limit = Mage::getStoreConfig('channable/server/memory_limit', $storeId)) {
-                ini_set('memory_limit', $memory_limit);
-            }
-
-            if ($max_execution_time = Mage::getStoreConfig('channable/server/max_execution_time', $storeId)) {
-                ini_set('max_execution_time', $max_execution_time);
-            }
-        }
-    }
-
-    /**
-     * @param $storeId
-     * @return array
-     */
-    public function getFeedConfig($storeId)
-    {
-
-        $config = array();
-        $feed = Mage::helper('channable');
-        $websiteId = Mage::app()->getStore($storeId)->getWebsiteId();
-
-        // DEFAULTS
-        $config['store_id'] = $storeId;
-        $config['website_name'] = $feed->cleanData(
-            Mage::getModel('core/website')->load($websiteId)->getName(),
-            'striptags'
-        );
-        $config['website_url'] = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
-        $config['media_url'] = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA);
-        $config['media_image_url'] = $config['media_url'] . 'catalog' . DS . 'product';
-        $config['media_attributes'] = $feed->getMediaAttributes();
-        $config['limit'] = Mage::getStoreConfig('channable/connect/max_products', $storeId);
-        $config['version'] = (string)Mage::getConfig()->getNode()->modules->Magmodules_Channable->version;
-        $config['media_gallery_id'] = Mage::getResourceModel('eav/entity_attribute')->getIdByCode(
-            'catalog_product',
-            'media_gallery'
-        );
-        $config['filters'] = @unserialize(Mage::getStoreConfig('channable/filter/advanced', $storeId));
-        $config['product_url_suffix'] = $feed->getProductUrlSuffix($storeId);
-        $config['filter_enabled'] = Mage::getStoreConfig('channable/filter/category_enabled', $storeId);
-        $config['filter_cat'] = Mage::getStoreConfig('channable/filter/categories', $storeId);
-        $config['filter_type'] = Mage::getStoreConfig('channable/filter/category_type', $storeId);
-        $config['filter_status'] = Mage::getStoreConfig('channable/filter/visibility_inc', $storeId);
-        $config['hide_no_stock'] = Mage::getStoreConfig('channable/filter/stock', $storeId);
-        $config['conf_enabled'] = Mage::getStoreConfig('channable/data/conf_enabled', $storeId);
-        $config['conf_fields'] = Mage::getStoreConfig('channable/data/conf_fields', $storeId);
-        $config['parent_att'] = $this->getParentAttributeSelection($config['conf_fields']);
-        $config['conf_switch_urls'] = Mage::getStoreConfig('channable/data/conf_switch_urls', $storeId);
-        $config['stock_manage'] = Mage::getStoreConfig('cataloginventory/item_options/manage_stock');
-        $config['use_qty_increments'] = Mage::getStoreConfig('cataloginventory/item_options/enable_qty_increments');
-        $config['qty_increments'] = Mage::getStoreConfig('cataloginventory/item_options/qty_increments');
-        $config['delivery'] = Mage::getStoreConfig('channable/data/delivery', $storeId);
-        $config['delivery_be'] = Mage::getStoreConfig('channable/data/delivery_be', $storeId);
-        $config['delivery_att'] = Mage::getStoreConfig('channable/data/delivery_att', $storeId);
-        $config['delivery_att_be'] = Mage::getStoreConfig('channable/data/delivery_att_be', $storeId);
-        $config['delivery_in'] = Mage::getStoreConfig('channable/data/delivery_in', $storeId);
-        $config['delivery_in_be'] = Mage::getStoreConfig('channable/data/delivery_in_be', $storeId);
-        $config['delivery_out'] = Mage::getStoreConfig('channable/data/delivery_out', $storeId);
-        $config['delivery_out_be'] = Mage::getStoreConfig('channable/data/delivery_out_be', $storeId);
-        $config['images'] = Mage::getStoreConfig('channable/data/images', $storeId);
-        $config['default_image'] = Mage::getStoreConfig('channable/data/default_image', $storeId);
-        $config['skip_validation'] = false;
-        $config['weight'] = Mage::getStoreConfig('channable/data/weight', $storeId);
-        $config['weight_units'] = Mage::getStoreConfig('channable/data/weight_units', $storeId);
-        $config['price_scope'] = Mage::getStoreConfig('catalog/price/scope');
-        $config['price_add_tax'] = Mage::getStoreConfig('channable/data/add_tax', $storeId);
-        $config['price_add_tax_perc'] = Mage::getStoreConfig('channable/data/tax_percentage', $storeId);
-        $config['force_tax'] = Mage::getStoreConfig('channable/data/force_tax', $storeId);
-        $config['currency'] = Mage::app()->getStore($storeId)->getCurrentCurrencyCode();
-        $config['base_currency_code'] = Mage::app()->getStore($storeId)->getBaseCurrencyCode();
-        $config['markup'] = Mage::helper('channable')->getPriceMarkup($config);
-        $config['use_tax'] = Mage::helper('channable')->getTaxUsage($config);
-
-        if (Mage::helper('core')->isModuleEnabled('Magmodules_Channableapi')) {
-            $config['item_updates'] = Mage::getStoreConfig('channable_api/item/enabled', $storeId);
-        } else {
-            $config['item_updates'] = '';
-        }
-
-        $config['shipping_prices'] = @unserialize(Mage::getStoreConfig('channable/advanced/shipping_price', $storeId));
-        $config['shipping_method'] = Mage::getStoreConfig('channable/advanced/shipping_method', $storeId);
-        $config['field'] = $this->getFeedAttributes($config, $storeId);
-        $config['category_exclude'] = 'channable_exclude';
-        $config['category_data'] = $feed->getCategoryData($config, $storeId);
-
-        return $config;
-    }
-
-    /**
-     * @param string $config
-     * @param int $storeId
-     * @return mixed
-     */
-    public function getFeedAttributes($config = '', $storeId = 0)
-    {
-        $attributes = array();
-        $attributes['id'] = array(
-            'label' => 'id',
-            'source' => 'entity_id'
-        );
-        $attributes['name'] = array(
-            'label' => 'name',
-            'source' => Mage::getStoreConfig('channable/data/name', $storeId)
-        );
-        $attributes['description'] = array(
-            'label' => 'description',
-            'source' => Mage::getStoreConfig('channable/data/description', $storeId)
-        );
-        $attributes['product_url'] = array(
-            'label' => 'url', 
-            'source' => ''
-        );
-        $attributes['image_link'] = array(
-            'label' => 'image',
-            'source' => Mage::getStoreConfig('channable/data/default_image', $storeId)
-        );
-        $attributes['price'] = array(
-            'label' => 'price',
-            'source' => ''
-        );
-        $attributes['sku'] = array(
-            'label' => 'sku',
-            'source' => Mage::getStoreConfig('channable/data/sku', $storeId)
-        );
-        $attributes['brand'] = array(
-            'label' => 'brand',
-            'source' => Mage::getStoreConfig('channable/data/brand', $storeId)
-        );
-        $attributes['size'] = array(
-            'label' => 'size',
-            'source' => Mage::getStoreConfig('channable/data/size', $storeId)
-        );
-        $attributes['color'] = array(
-            'label' => 'color',
-            'source' => Mage::getStoreConfig('channable/data/color', $storeId)
-        );
-        $attributes['material'] = array(
-            'label' => 'material',
-            'source' => Mage::getStoreConfig('channable/data/material', $storeId)
-        );
-        $attributes['gender'] = array(
-            'label' => 'gender',
-            'source' => Mage::getStoreConfig('channable/data/gender', $storeId)
-        );
-        $attributes['ean'] = array(
-            'label' => 'ean',
-            'source' => Mage::getStoreConfig('channable/data/ean', $storeId)
-        );
-        $attributes['categories'] = array(
-            'label' => 'categories',
-            'source' => '',
-            'parent' => 1
-           );
-        $attributes['type'] = array(
-            'label' => 'type',
-            'source' => 'type_id'
-           );
-        $attributes['status'] = array(
-            'label' => 'status',
-            'source' => 'status',
-            'parent' => 1
-        );
-        $attributes['visibility'] = array(
-            'label' => 'visibility',
-            'source' => 'visibility'
-            );
-        $attributes['parent_id'] = array(
-            'label' => 'item_group_id',
-            'source' => 'entity_id',
-            'parent' => 1
-           );
-        $attributes['weight'] = array(
-                'label' => 'weight',
-                'source' => ''
-           );
-        $attributes['is_in_stock'] = array(
-            'label' => 'is_in_stock',
-            'source' => 'is_in_stock'
-           );
-
-        if (Mage::getStoreConfig('channable/data/stock', $storeId)) {
-            $attributes['stock'] = array(
-                'label' => 'qty',
-                'source' => 'qty',
-                'action' => 'round'
-               );
-        }
-
-        if (Mage::getStoreConfig('channable/data/delivery', $storeId) == 'attribute') {
-            $attributes['delivery'] = array(
-                'label' => 'delivery',
-                'source' => Mage::getStoreConfig('channable/data/delivery_att', $storeId)
-            );
-        }
-
-        if (Mage::getStoreConfig('channable/data/delivery_be', $storeId) == 'attribute') {
-            $attributes['delivery_be'] = array(
-                'label' => 'delivery_be',
-                'source' => Mage::getStoreConfig('channable/data/delivery_att_be', $storeId)
-            );
-        }
-
-        if ($extraFields = @unserialize(Mage::getStoreConfig('channable/advanced/extra', $storeId))) {
-            foreach ($extraFields as $extraField) {
-                $attributes[$extraField['attribute']] = array(
-                    'label' => $extraField['label'],
-                    'source' => $extraField['attribute'],
-                    'action' => ''
-                );
-            }
-        }
-
-        return Mage::helper('channable')->addAttributeData($attributes, $config);
-    }
-
-    /**
-     * @param $storeId
-     * @param $page
-     */
-    protected function cleanItemUpdates($storeId, $page)
-    {
-        if (empty($page)) {
-            if (Mage::helper('core')->isModuleEnabled('Magmodules_Channableapi')) {
-                Mage::getModel('channableapi/items')->cleanItemStore($storeId);
-            }
         }
     }
 
@@ -279,17 +47,19 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
      * @param $page
      * @return array
      */
-    public function getFeedData($products, $config, $timeStart, $prices, $page)
+    public function getFeedData($products, $parents, $config, $parentAttributes, $timeStart, $prices, $page)
     {
         $count = $this->getProducts($config, '', '', 'count');
         foreach ($products as $product) {
             if ($parentId = Mage::helper('channable')->getParentData($product, $config)) {
-                $parent = $this->loadParentProduct($parentId, $config['store_id'], $config['parent_att']);
+                $parent = $parents->getItemById($parentId);
             } else {
                 $parent = '';
             }
 
-            if ($productData = Mage::helper('channable')->getProductDataRow($product, $config, $parent)) {
+            $productData = Mage::helper('channable')->getProductDataRow($product, $config, $parent, $parentAttributes);
+
+            if ($productData) {
                 foreach ($productData as $key => $value) {
                     if (!is_array($value)) {
                         $productRow[$key] = $value;
@@ -313,12 +83,10 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
             $returnFeed = array();
             $returnFeed['config'] = $this->getFeedHeader($config, $count, $timeStart, count($feed['products']), $page);
             $returnFeed['products'] = $feed['products'];
-
             return $returnFeed;
         } else {
             $returnFeed = array();
-            $returnFeed['config'] = $this->getFeedHeader($config, $count, $timeStart);
-
+            $returnFeed['config'] = $this->getFeedHeader($config, $count, $timeStart, '', $page);
             return $returnFeed;
         }
     }
@@ -413,11 +181,10 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
      * @param $data
      * @param $config
      * @param $weight
-     * @param $product
      * @param $stock
      * @return array
      */
-    public function getShipping($data, $config, $weight, $product, $stock)
+    public function getShipping($data, $config, $weight, $stock)
     {
         $shippingArray = array();
 
@@ -462,6 +229,8 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
         } else {
             if (isset($data['price']['final_price_clean'])) {
                 $calValue = $data['price']['final_price_clean'];
+            } else {
+                $calValue = '0.00';
             }
         }
             
@@ -469,7 +238,6 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
             foreach ($config['shipping_prices'] as $shippingPrice) {
                 if (($calValue >= $shippingPrice['price_from']) && ($calValue <= $shippingPrice['price_to'])) {
                     $shippingCost = $shippingPrice['cost'];
-                    
                     $shippingCost = number_format($shippingCost, 2, '.', '') . ' ' . $config['currency'];
                     if (empty($shippingPrice['country'])) {
                         $shippingArray['shipping'] = $shippingCost;
@@ -642,5 +410,234 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
         }
 
         return $header;
+    }
+
+    /**
+     * @param $storeId
+     */
+    protected function setMemoryLimit($storeId)
+    {
+        if (Mage::getStoreConfig('channable/server/overwrite', $storeId)) {
+            if ($memory_limit = Mage::getStoreConfig('channable/server/memory_limit', $storeId)) {
+                ini_set('memory_limit', $memory_limit);
+            }
+
+            if ($max_execution_time = Mage::getStoreConfig('channable/server/max_execution_time', $storeId)) {
+                ini_set('max_execution_time', $max_execution_time);
+            }
+        }
+    }
+
+    /**
+     * @param $storeId
+     * @param $page
+     */
+    protected function cleanItemUpdates($storeId, $page)
+    {
+        if (empty($page)) {
+            if (Mage::helper('core')->isModuleEnabled('Magmodules_Channableapi')) {
+                Mage::getModel('channableapi/items')->cleanItemStore($storeId);
+            }
+        }
+    }
+
+
+    /**
+     * @param $storeId
+     * @return array
+     */
+    public function getFeedConfig($storeId)
+    {
+
+        $config = array();
+        $feed = Mage::helper('channable');
+        $websiteId = Mage::app()->getStore($storeId)->getWebsiteId();
+
+        // DEFAULTS
+        $config['store_id'] = $storeId;
+        $config['website_name'] = $feed->cleanData(Mage::getModel('core/website')->load($websiteId)->getName(), 'striptags');
+        $config['website_url'] = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
+        $config['media_url'] = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA);
+        $config['media_image_url'] = $config['media_url'] . 'catalog' . DS . 'product';
+        $config['media_attributes'] = $feed->getMediaAttributes();
+        $config['limit'] = Mage::getStoreConfig('channable/connect/max_products', $storeId);
+        $config['version'] = (string)Mage::getConfig()->getNode()->modules->Magmodules_Channable->version;
+        $config['media_gallery_id'] = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', 'media_gallery');
+        $config['filters'] = @unserialize(Mage::getStoreConfig('channable/filter/advanced', $storeId));
+        $config['product_url_suffix'] = $feed->getProductUrlSuffix($storeId);
+        $config['filter_enabled'] = Mage::getStoreConfig('channable/filter/category_enabled', $storeId);
+        $config['filter_cat'] = Mage::getStoreConfig('channable/filter/categories', $storeId);
+        $config['filter_type'] = Mage::getStoreConfig('channable/filter/category_type', $storeId);
+        $config['filter_status'] = Mage::getStoreConfig('channable/filter/visibility_inc', $storeId);
+        $config['hide_no_stock'] = Mage::getStoreConfig('channable/filter/stock', $storeId);
+        $config['conf_enabled'] = Mage::getStoreConfig('channable/data/conf_enabled', $storeId);
+        $config['conf_fields'] = Mage::getStoreConfig('channable/data/conf_fields', $storeId);
+        $config['parent_att'] = $this->getParentAttributeSelection($config['conf_fields']);
+        $config['conf_switch_urls'] = Mage::getStoreConfig('channable/data/conf_switch_urls', $storeId);
+        $config['stock_manage'] = Mage::getStoreConfig('cataloginventory/item_options/manage_stock');
+        $config['use_qty_increments'] = Mage::getStoreConfig('cataloginventory/item_options/enable_qty_increments');
+        $config['qty_increments'] = Mage::getStoreConfig('cataloginventory/item_options/qty_increments');
+        $config['delivery'] = Mage::getStoreConfig('channable/data/delivery', $storeId);
+        $config['delivery_be'] = Mage::getStoreConfig('channable/data/delivery_be', $storeId);
+        $config['delivery_att'] = Mage::getStoreConfig('channable/data/delivery_att', $storeId);
+        $config['delivery_att_be'] = Mage::getStoreConfig('channable/data/delivery_att_be', $storeId);
+        $config['delivery_in'] = Mage::getStoreConfig('channable/data/delivery_in', $storeId);
+        $config['delivery_in_be'] = Mage::getStoreConfig('channable/data/delivery_in_be', $storeId);
+        $config['delivery_out'] = Mage::getStoreConfig('channable/data/delivery_out', $storeId);
+        $config['delivery_out_be'] = Mage::getStoreConfig('channable/data/delivery_out_be', $storeId);
+        $config['images'] = Mage::getStoreConfig('channable/data/images', $storeId);
+        $config['default_image'] = Mage::getStoreConfig('channable/data/default_image', $storeId);
+        $config['skip_validation'] = false;
+        $config['weight'] = Mage::getStoreConfig('channable/data/weight', $storeId);
+        $config['weight_units'] = Mage::getStoreConfig('channable/data/weight_units', $storeId);
+        $config['price_scope'] = Mage::getStoreConfig('catalog/price/scope');
+        $config['price_add_tax'] = Mage::getStoreConfig('channable/data/add_tax', $storeId);
+        $config['price_add_tax_perc'] = Mage::getStoreConfig('channable/data/tax_percentage', $storeId);
+        $config['force_tax'] = Mage::getStoreConfig('channable/data/force_tax', $storeId);
+        $config['currency'] = Mage::app()->getStore($storeId)->getCurrentCurrencyCode();
+        $config['base_currency_code'] = Mage::app()->getStore($storeId)->getBaseCurrencyCode();
+        $config['markup'] = Mage::helper('channable')->getPriceMarkup($config);
+        $config['use_tax'] = Mage::helper('channable')->getTaxUsage($config);
+
+        if (Mage::helper('core')->isModuleEnabled('Magmodules_Channableapi')) {
+            $config['item_updates'] = Mage::getStoreConfig('channable_api/item/enabled', $storeId);
+        } else {
+            $config['item_updates'] = '';
+        }
+
+        $config['shipping_prices'] = @unserialize(Mage::getStoreConfig('channable/advanced/shipping_price', $storeId));
+        $config['shipping_method'] = Mage::getStoreConfig('channable/advanced/shipping_method', $storeId);
+        $config['field'] = $this->getFeedAttributes($config, $storeId);
+        $config['category_exclude'] = 'channable_exclude';
+        $config['category_data'] = $feed->getCategoryData($config, $storeId);
+
+        return $config;
+    }
+
+    /**
+     * @param string $config
+     * @param int $storeId
+     * @return mixed
+     */
+    public function getFeedAttributes($config = '', $storeId = 0)
+    {
+        $attributes = array();
+        $attributes['id'] = array(
+            'label' => 'id',
+            'source' => 'entity_id'
+        );
+        $attributes['name'] = array(
+            'label' => 'name',
+            'source' => Mage::getStoreConfig('channable/data/name', $storeId)
+        );
+        $attributes['description'] = array(
+            'label' => 'description',
+            'source' => Mage::getStoreConfig('channable/data/description', $storeId)
+        );
+        $attributes['product_url'] = array(
+            'label' => 'url', 
+            'source' => ''
+        );
+        $attributes['image_link'] = array(
+            'label' => 'image',
+            'source' => Mage::getStoreConfig('channable/data/default_image', $storeId)
+        );
+        $attributes['price'] = array(
+            'label' => 'price',
+            'source' => ''
+        );
+        $attributes['sku'] = array(
+            'label' => 'sku',
+            'source' => Mage::getStoreConfig('channable/data/sku', $storeId)
+        );
+        $attributes['brand'] = array(
+            'label' => 'brand',
+            'source' => Mage::getStoreConfig('channable/data/brand', $storeId)
+        );
+        $attributes['size'] = array(
+            'label' => 'size',
+            'source' => Mage::getStoreConfig('channable/data/size', $storeId)
+        );
+        $attributes['color'] = array(
+            'label' => 'color',
+            'source' => Mage::getStoreConfig('channable/data/color', $storeId)
+        );
+        $attributes['material'] = array(
+            'label' => 'material',
+            'source' => Mage::getStoreConfig('channable/data/material', $storeId)
+        );
+        $attributes['gender'] = array(
+            'label' => 'gender',
+            'source' => Mage::getStoreConfig('channable/data/gender', $storeId)
+        );
+        $attributes['ean'] = array(
+            'label' => 'ean',
+            'source' => Mage::getStoreConfig('channable/data/ean', $storeId)
+        );
+        $attributes['categories'] = array(
+            'label' => 'categories',
+            'source' => '',
+            'parent' => 1
+        );
+        $attributes['type'] = array(
+            'label' => 'type',
+            'source' => 'type_id'
+        );
+        $attributes['status'] = array(
+            'label' => 'status',
+            'source' => 'status',
+            'parent' => 1
+        );
+        $attributes['visibility'] = array(
+            'label' => 'visibility',
+            'source' => 'visibility'
+        );
+        $attributes['parent_id'] = array(
+            'label' => 'item_group_id',
+            'source' => 'entity_id',
+            'parent' => 1
+        );
+        $attributes['weight'] = array(
+            'label' => 'weight',
+            'source' => ''
+        );
+        $attributes['is_in_stock'] = array(
+            'label' => 'is_in_stock',
+            'source' => 'is_in_stock'
+        );
+
+        if (Mage::getStoreConfig('channable/data/stock', $storeId)) {
+            $attributes['stock'] = array(
+                'label' => 'qty',
+                'source' => 'qty',
+                'action' => 'round'
+            );
+        }
+
+        if (Mage::getStoreConfig('channable/data/delivery', $storeId) == 'attribute') {
+            $attributes['delivery'] = array(
+                'label' => 'delivery',
+                'source' => Mage::getStoreConfig('channable/data/delivery_att', $storeId)
+            );
+        }
+
+        if (Mage::getStoreConfig('channable/data/delivery_be', $storeId) == 'attribute') {
+            $attributes['delivery_be'] = array(
+                'label' => 'delivery_be',
+                'source' => Mage::getStoreConfig('channable/data/delivery_att_be', $storeId)
+            );
+        }
+
+        if ($extraFields = @unserialize(Mage::getStoreConfig('channable/advanced/extra', $storeId))) {
+            foreach ($extraFields as $extraField) {
+                $attributes[$extraField['attribute']] = array(
+                    'label' => $extraField['label'],
+                    'source' => $extraField['attribute'],
+                    'action' => ''
+                );
+            }
+        }
+
+        return Mage::helper('channable')->addAttributeData($attributes, $config);
     }
 }

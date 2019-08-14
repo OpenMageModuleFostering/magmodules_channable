@@ -14,6 +14,7 @@
  * @license     http://www.magmodules.eu/license-agreement/
  * =============================================================
  */
+
 class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
 {
 
@@ -52,6 +53,9 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
 
         if (($limit) && ($type != 'count')) {
             $collection->setPage($page, $limit)->getCurPage();
+            if ($collection->getLastPageNumber() < $page) {
+                return array();
+            }
         }
 
         if (empty($config['conf_enabled'])) {
@@ -142,11 +146,9 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
                     'use_config_qty_increments'
                     )
             );
+
             $collection->getSelect()->group('e.entity_id');
-            if (!empty($config['hide_no_stock'])) {
-                Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
-            }
-            
+           
             $products = $collection->load();
         } else {
             $products = $collection->getSize();
@@ -156,6 +158,7 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Araay of default Attributes
      * @return array
      */
     public function getDefaultAttributes()
@@ -185,18 +188,40 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
         return $attributes;
     }
 
-    public function loadParentProduct($parentId, $storeId, $attributes)
-    {
-        $parent = Mage::getResourceModel('catalog/product_collection')
-            ->setStore($storeId)
-            ->addStoreFilter($storeId)
-            ->addFinalPrice()
-            ->addUrlRewrite()
-            ->addAttributeToFilter('entity_id', $parentId)
-            ->addAttributeToSelect(array_unique($attributes))
-            ->getFirstItem();
 
-        return $parent;
+    /**
+     * @param $products
+     * @param $config
+     * @return array
+     */
+    public function getParents($products, $config)
+    {
+        if (!empty($config['conf_enabled'])) {
+            $ids = array();
+            foreach ($products as $product) {
+                if ($parentId = Mage::helper('channable')->getParentData($product, $config)) {
+                    $ids[] = $parentId;
+                }
+            }
+            
+            if (empty($ids)) {
+                return array();
+            }
+            
+            $collection = Mage::getResourceModel('catalog/product_collection')
+                ->setStore($config['store_id'])
+                ->addStoreFilter($config['store_id'])
+                ->addFinalPrice()
+                ->addUrlRewrite()
+                ->addAttributeToFilter('entity_id', array('in', $ids))
+                ->addAttributeToSelect(array_unique($config['parent_att']));
+                
+             if (!empty($config['hide_no_stock'])) {
+                Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
+             }    
+            
+            return $collection->load();    
+        }
     }
 
     /**
@@ -227,9 +252,9 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
             $value = $filter['value'];
             
             if ($attribute == 'final_price') {
-                $condionType = array('eq'=> '=', 'neq' => '!=', 'gt' => '>', 'gteq' => '>=', 'lt' => '<', 'lteg' => '<=');
-                if (isset($condionType[$condition])) {
-                    $collection->getSelect()->where('price_index.final_price ' . $condionType[$condition] . ' ' . $value);
+                $cType = array('eq'=> '=', 'neq' => '!=', 'gt' => '>', 'gteq' => '>=', 'lt' => '<', 'lteg' => '<=');
+                if (isset($cType[$condition])) {
+                    $collection->getSelect()->where('price_index.final_price ' . $cType[$condition] . ' ' . $value);
                 }
 
                 continue;
@@ -278,5 +303,4 @@ class Magmodules_Channable_Model_Common extends Mage_Core_Helper_Abstract
             }
         }        
     }
-    
 }

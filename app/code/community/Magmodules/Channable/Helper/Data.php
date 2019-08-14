@@ -40,9 +40,10 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
      * @param $product
      * @param $config
      * @param $parent
+     * @param $parentAttributes
      * @return array|bool
      */
-    public function getProductDataRow($product, $config, $parent)
+    public function getProductDataRow($product, $config, $parent, $parentAttributes)
     {
         $fields = $config['field'];
         $data = array();
@@ -56,7 +57,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         foreach ($fields as $key => $field) {
-            $rows = $this->getAttributeValue($key, $product, $config, $field['action'], $parent);
+            $rows = $this->getAttributeValue($key, $product, $config, $field['action'], $parent, $parentAttributes);
             if (is_array($rows)) {
                 $data = array_merge($data, $rows);
             }
@@ -117,7 +118,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
                 }
 
                 if ($manageStock) {
-                    if (!$product['stock_status']) {
+                    if (!$product['is_in_stock']) {
                         return false;
                     }
                 }
@@ -141,7 +142,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
      * @param $parent
      * @return bool
      */
-    public function getAttributeValue($field, $product, $config, $actions = '', $parent)
+    public function getAttributeValue($field, $product, $config, $actions = '', $parent, $parentAttributes)
     {
         $data = $config['field'][$field];
         $productData = $product;
@@ -154,7 +155,7 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
 
         switch ($field) {
             case 'product_url':
-                $value = $this->getProductUrl($product, $config, $parent);
+                $value = $this->getProductUrl($product, $config, $parent, $parentAttributes);
                 break;
             case 'image_link':
                 $value = $this->getProductImage($productData, $config);
@@ -173,6 +174,9 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
                 break;
             case 'bundle':
                 $value = $this->getProductBundle($productData);
+                break;
+            case 'is_in_stock':
+                $value = $this->getIsInStock($productData, $config);
                 break;
             case 'parent_id':
                 $value = $this->getProductData($parent, $data);
@@ -230,10 +234,30 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * @param $product
      * @param $config
+     * @return string
+     */
+    public function getIsInStock($product, $config)
+    {
+        if ($product->getUseConfigManageStock()) {
+            $manageStock = $config['stock_manage'];
+        } else {
+            $manageStock = $product->getManageStock();
+        }
+
+        if ($manageStock) {
+            return $product->getIsInStock();
+        } else {
+            return "1";
+        }
+    }
+
+    /**
+     * @param $product
+     * @param $config
      * @param $parent
      * @return string
      */
-    public function getProductUrl($product, $config, $parent)
+    public function getProductUrl($product, $config, $parent, $parentAttributes)
     {
         $url = '';
         if (!empty($parent)) {
@@ -264,16 +288,12 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
-        if (!empty($parent) && !empty($config['conf_switch_urls']) && !empty($url)) {
-            if ($parent->getTypeId() == 'configurable') {
-                $productAttributeOptions = $parent->getTypeInstance(true)->getConfigurableAttributesAsArray($parent);
+        if (!empty($parent) && !empty($url)) {
+            if (!empty($parentAttributes[$parent->getEntityId()])) {
+                $productAttributeOptions = $parentAttributes[$parent->getEntityId()];
                 $urlExtra = '';
                 foreach ($productAttributeOptions as $productAttribute) {
-                    if ($id = Mage::getResourceModel('catalog/product')->getAttributeRawValue(
-                        $product->getId(),
-                        $productAttribute['attribute_code'], $config['store_id']
-                    )
-                    ) {
+                    if ($id = Mage::getResourceModel('catalog/product')->getAttributeRawValue($product->getId(), $productAttribute['attribute_code'], $config['store_id'])) {
                         $urlExtra .= $productAttribute['attribute_id'] . '=' . $id . '&';
                     }
                 }
@@ -287,6 +307,21 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
         return $url;
     }
 
+    public function getConfigurableAttributesAsArray($parents, $config)
+    {
+        $configurableAttributes = array();
+        if (!empty($config['conf_switch_urls'])) {
+            foreach ($parents as $parent) {
+                if ($parent->getTypeId() == 'configurable') {
+                    $configurableAttributes[$parent->getEntityId()] = $parent->getTypeInstance(true)
+                        ->getConfigurableAttributesAsArray($parent);
+                }                
+            }
+        }
+
+        return $configurableAttributes;
+    }
+
     /**
      * @param $product
      * @param $config
@@ -297,7 +332,10 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
         $imageData = array();
         if (!empty($config['image_resize']) && !empty($config['image_size'])) {
             $imageFile = $product->getData($config['image_source']);
-            $imageModel = Mage::getModel('catalog/product_image')->setSize($config['image_size'])->setDestinationSubdir($config['image_source'])->setBaseFile($imageFile);
+            $imageModel = Mage::getModel('catalog/product_image')
+                ->setSize($config['image_size'])
+                ->setDestinationSubdir($config['image_source'])
+                ->setBaseFile($imageFile);
             if (!$imageModel->isCached()) {
                 $imageModel->resize()->saveFile();
             }
@@ -346,7 +384,10 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
 
             if (!empty($config['images'])) {
                 $imageData['image_link'] = $image;
-                $container = new Varien_Object(array('attribute' => new Varien_Object(array('id' => $config['media_gallery_id']))));
+                $container = new Varien_Object(
+                    array(
+                    'attribute' => new Varien_Object(array('id' => $config['media_gallery_id'])))
+                );
                 $imgProduct = new Varien_Object(array('id' => $product->getId(), 'store_id' => $config['store_id']));
                 $gallery = Mage::getResourceModel('catalog/product_attribute_backend_media')->loadGallery(
                     $imgProduct,
@@ -873,7 +914,11 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
 
         // CHECK IF NEW ATTRIBUTES ARE AVAILABLE
         try {
-            Mage::getModel('catalog/category')->setStoreId($storeId)->getCollection()->addAttributeToSelect($attributes)->getFirstItem();
+            Mage::getModel('catalog/category')
+                ->setStoreId($storeId)
+                ->getCollection()
+                ->addAttributeToSelect($attributes)
+                ->getFirstItem();
         } catch (Exception $e) {
         }
 
@@ -978,7 +1023,8 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract
     {
         if (!empty($config['conf_enabled'])) {
             if (($product['type_id'] == 'simple')) {
-                $configIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+                $configIds = Mage::getModel('catalog/product_type_configurable')
+                    ->getParentIdsByChild($product->getId());
                 $groupIds = Mage::getResourceSingleton('catalog/product_link')->getParentIdsByChild(
                     $product->getId(),
                     Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED

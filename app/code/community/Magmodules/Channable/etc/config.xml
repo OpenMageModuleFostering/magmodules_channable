@@ -19,7 +19,7 @@
 <config>
     <modules>
         <Magmodules_Channable>
-            <version>1.5.0</version>
+            <version>1.5.1</version>
         </Magmodules_Channable>
     </modules>
     <global>

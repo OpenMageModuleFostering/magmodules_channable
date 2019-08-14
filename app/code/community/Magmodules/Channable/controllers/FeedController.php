@@ -33,15 +33,8 @@ class Magmodules_Channable_FeedController extends Mage_Core_Controller_Front_Act
                     $limit = Mage::getStoreConfig('channable/connect/max_products', $storeId);
                     $appEmulation = Mage::getSingleton('core/app_emulation');
                     $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($storeId);
-                    Mage::app()->loadAreaPart(
-                        Mage_Core_Model_App_Area::AREA_GLOBAL,
-                        Mage_Core_Model_App_Area::PART_EVENTS
-                    )->loadArea(Mage_Core_Model_App_Area::AREA_FRONTEND);
-                    if ($feed = Mage::getModel('channable/channable')->generateFeed(
-                        $storeId, $limit, $page,
-                        $timeStart
-                    )
-                    ) {
+                    Mage::app()->loadAreaPart(Mage_Core_Model_App_Area::AREA_GLOBAL, Mage_Core_Model_App_Area::PART_EVENTS)->loadArea(Mage_Core_Model_App_Area::AREA_FRONTEND);
+                    if ($feed = Mage::getModel('channable/channable')->generateFeed($storeId, $limit, $timeStart, $page)) {
                         if ($this->getRequest()->getParam('array')) {
                             $this->getResponse()->setBody(Zend_Debug::dump($feed, null, false));
                         } else {
