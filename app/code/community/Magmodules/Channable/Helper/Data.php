@@ -186,18 +186,22 @@ class Magmodules_Channable_Helper_Data extends Mage_Core_Helper_Abstract {
 	{
 		if(!empty($parent)) {
 			if($parent->getUrlKey()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getUrlKey()));
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getUrlKey() . $config['product_url_suffix']));
 			}
-			if($product->getRequestPath()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getRequestPath() . $config['product_url_suffix']));			
-			}			
+			if(empty($url)) {
+				if($product->getRequestPath()) {
+					$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $parent->getRequestPath() . $config['product_url_suffix']));			
+				}			
+			}
 		} else {
 			if($product->getUrlKey()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getUrlKey()));
+				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getUrlKey() . $config['product_url_suffix']));
 			}
-			if($product->getRequestPath()) {
-				$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getRequestPath() . $config['product_url_suffix']));			
-			}			
+			if(empty($url)) {
+				if($product->getRequestPath()) {
+					$url = Mage::helper('core')->escapeHtml(trim($config['website_url'] . $product->getRequestPath() . $config['product_url_suffix']));			
+				}			
+			}
 		}
 		if(!empty($parent) && !empty($config['conf_switch_urls'])) {
 			if($parent->getTypeId() == 'configurable') {

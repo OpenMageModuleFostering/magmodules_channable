@@ -81,7 +81,7 @@ class Magmodules_Channable_Model_Channable extends Magmodules_Channable_Model_Co
 		$config['media_gallery_id'] 	= Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', 'media_gallery');
 		$config['item_updates']			= Mage::getStoreConfig('channable_api/item/enabled', $storeId);
 		$config['filters']				= @unserialize(Mage::getStoreConfig('channable/filter/advanced', $storeId));	
-		$config['product_url_suffix']	= $feed->getProductUrlSuffix();
+		$config['product_url_suffix']   = $feed->getProductUrlSuffix($storeId);
 
 		// PRODUCT & CATEGORY 
 		$config['filter_enabled']		= Mage::getStoreConfig('channable/filter/category_enabled', $storeId);
