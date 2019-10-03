@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/Magmodules_Channable",
+    "name": "OpenMageModuleFostering\/Magmodules_Channable",
     "type": "magento-module",
     "license": "Single-Server-License",
     "homepage": "",
     "description": "Magmodules_Channable",
     "authors": [
-    {
-        "name": "Magmodules",
-        "email": "info@magmodules.nl"
-    }
-],
+        {
+            "name": "Magmodules",
+            "email": "info@magmodules.nl"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
